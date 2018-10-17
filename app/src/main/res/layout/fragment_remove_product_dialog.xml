@@ -1,0 +1,73 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingBottom="16dp"
+    tools:context="gab.cdi.bingwitproducer.fragments.RemoveProductDialogFragment">
+
+    <TextView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/remove_product_prompt_text"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Are you sure you want to stop selling this_product?"
+        android:fontFamily="@font/roboto"
+        android:textColor="#000000"/>
+
+    <ImageView
+        android:id="@+id/remove_product_icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:srcCompat="@drawable/ic_cancel_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/remove_product_prompt_text"
+        android:layout_marginTop="16dp"
+        tools:layout_editor_absoluteX="148dp"
+        tools:layout_editor_absoluteY="90dp" />
+
+    <LinearLayout
+        app:layout_constraintTop_toBottomOf="@id/remove_product_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:id="@+id/forgot_password_buttons"
+        android:layout_width="0dp"
+        app:layout_constraintWidth_percent="1"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="1">
+        <Button
+            android:id="@+id/remove_product_no_button"
+            android:layout_weight="0.5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#EF5350"
+            android:text="@string/no"
+            android:textColor="#ffffff"
+            android:fontFamily="@font/lato"
+            android:layout_marginRight="8dp"/>
+        <Button
+            android:id="@+id/remove_product_yes_button"
+            android:layout_weight="0.5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:text="@string/yes"
+            android:textColor="#ffffff"
+            android:fontFamily="@font/lato"
+            android:layout_marginLeft="8dp"/>
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

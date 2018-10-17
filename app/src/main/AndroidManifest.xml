@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="gab.cdi.bingwitproducer">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".activities.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
+        <activity
+            android:name=".activities.RegistrationActivity"
+            android:label="Registration" />
+        <activity
+            android:name=".activities.MainActivity"
+            android:label="Dashboard"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ViewProductActivity"
+            android:label="View a Product" />
+        <activity
+            android:name=".EditProductActivity"
+            android:label="Edit a Product" />
+        <activity
+            android:name=".activities.RegistrationBiographyActivity"
+            android:label="Biography" />
+        <activity android:name=".activities.RegistrationVerificationActivity"
+            android:label="Verification"/>
+    </application>
+
+</manifest>

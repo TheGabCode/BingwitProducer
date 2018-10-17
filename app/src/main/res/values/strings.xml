@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">BingwitProducer</string>
+    <string name="username_hint">Username</string>
+    <string name="password_hint">Password</string>
+    <string name="no_account_yet">No account yet?</string>
+    <string name="sign_up">sign up</string>
+    <string name="sign_in">sign in</string>
+    <string name="full_name">Full Name</string>
+    <string name="address">Address</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="profile">Profile</string>
+    <string name="dashboard_navigation">Dashboard</string>
+    <string name="price_per_kilogram_pesos">Price per Kilogram (Pesos)</string>
+    <string name="min_price_pesos">Min. Price (Pesos)</string>
+    <string name="max_price_pesos">Max Price (Pesos)</string>
+    <string name="title_activity_transaction_history">TransactionHistoryActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="edit_profile">edit profile</string>
+    <string name="dummy_name">Joseph Gabriel Gonzales</string>
+    <string name="dummy_address">Blue House Unit 18</string>
+    <string name="dummy_number">098765432190</string>
+    <string name="save">Save</string>
+    <string name="continue_text">Continue</string>
+    <string name="share_something_about_yourself">Share something about yourself...</string>
+    <string name="optional"><i>(Optional)</i></string>
+    <string name="we_have_sent_a_four_digit_verification_code_to_your_phone">We have sent a four-digit verification code to your phone</string>
+    <string name="enter_four_digit_code">Enter four-digit code</string>
+    <string name="verify">Verify</string>
+    <string name="resend_verification_code">resend verification code</string>
+    <string name="placed_for_bidding">Placed for bidding</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="cancel">Cancel</string>
+    <string name="submit">Submit</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="duration_of_bidding">Duration of Bidding</string>
+    <string name="change_password">change password</string>
+    <string name="old_password">Old Password</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm New Password</string>
+    <string name="confirm">Confirm</string>
+    <string name="this_is_an_alert_for_errors">This is an alert for errors</string>
+    <string name="enter_password_reset_code">Enter Password Reset Code</string>
+    <string name="reset_code">Reset Code</string>
+    <string name="send_reset_code">Send Reset Code</string>
+    <string-array name="transaction_statuses">
+        <item>Order placed</item>
+        <item>Ready for delivery</item>
+        <item>Shipped</item>
+        <item>Delivered</item>
+    </string-array>
+</resources>

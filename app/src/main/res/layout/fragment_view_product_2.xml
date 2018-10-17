@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:timer="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_view_product"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    tools:context="gab.cdi.bingwitproducer.fragments.ViewProductFragment">
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/view_product_image_options_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="#ffffff"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/product_image"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:background="#ffffff"
+                android:src="@drawable/fish"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:id="@+id/auction_timer_background"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="#96000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0" />
+
+                <douglasspgyn.com.github.circularcountdown.CircularCountdown
+                    android:id="@+id/auction_timer"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:countdownBackgroundColor="#e0e0e0"
+                    app:countdownForegroundColor="@color/colorPrimary"
+                    app:countdownTextColor="@color/colorPrimary"
+                    app:countdownTextSize="24sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="1.0" />
+        </android.support.constraint.ConstraintLayout>
+
+
+        <LinearLayout
+            android:id="@+id/product_price_name_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:orientation="vertical"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_product_image_options_layout">
+            <TextView
+                android:id="@+id/view_product_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_bold"
+                android:text="PHP 200/Kg"
+                android:textColor="#FF5722"
+                android:textSize="24sp" />
+            <TextView
+                android:id="@+id/view_product_product_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="Fresh Tilapia Tail"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/view_product_product_selling_method"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="Placed for auction"
+                android:textColor="#747474"
+                android:textStyle="italic"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/view_product_product_type_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/product_price_name_layout"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="#ffffff">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product Type: "
+                android:fontFamily="@font/roboto"
+                android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/view_product_product_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tilapia"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/view_product_product_stock_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_product_product_type_layout"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="#ffffff">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remaining Stock: "
+                android:fontFamily="@font/roboto"
+                android:textSize="16sp"/>
+            <TextView
+                android:id="@+id/view_product_product_stock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="10Kg"
+                android:fontFamily="@font/roboto"
+                android:textColor="#000"
+                android:textSize="16sp"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/product_options_buttons"
+            android:background="#ffffff"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view_product_product_stock_layout">
+            <Button
+                android:id="@+id/remove_product_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="#EF5350"
+                android:layout_marginRight="12dp"
+                android:text="remove"
+                android:fontFamily="@font/lato"
+                android:textColor="#ffffff"/>
+            <Button
+                android:id="@+id/edit_product_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/colorPrimary"
+                android:layout_marginLeft="12dp"
+                android:text="edit"
+                android:fontFamily="@font/lato"
+                android:textColor="#ffffff"/>
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.v4.widget.NestedScrollView>

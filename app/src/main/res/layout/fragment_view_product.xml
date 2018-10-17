@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/nav_view_product"
+    tools:context="gab.cdi.bingwitproducer.fragments.ViewProductFragment">
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/product_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:paddingStart="32dp"
+        android:paddingEnd="32dp"
+        android:paddingTop="48dp"
+        android:paddingBottom="48dp"
+        android:background="@drawable/border_bottom_light_light_gray">
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/product_image_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+                <ImageView
+                    android:id="@+id/product_image"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:srcCompat="@drawable/ic_fish"/>
+                <View
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="#96000000"/>
+                <douglasspgyn.com.github.circularcountdown.CircularCountdown
+                    android:id="@+id/auction_timer"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:countdownBackgroundColor="#e0e0e0"
+                    app:countdownForegroundColor="@color/colorPrimary"
+                    app:countdownTextColor="@color/colorPrimary"
+                    app:countdownTextSize="24sp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"/>
+
+            </android.support.constraint.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/product_info_details"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+
+            app:layout_constraintStart_toEndOf="@+id/product_image_container"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="16dp">
+
+
+            <TextView
+                android:id="@+id/product_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Product Name"
+                android:textAllCaps="true"
+                android:textColor="#000000"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/product_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="Product Type "
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/product_weight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_light"
+                android:text="Product Weight Kg"
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/product_price_per_kilogram"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Price/Kg"
+                android:textAllCaps="false"
+                android:textColor="#FF5722"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/product_selling_method"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:textAllCaps="false"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
+    <LinearLayout
+        android:id="@+id/product_options_buttons"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/product_info">
+        <Button
+            android:id="@+id/remove_product_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#EF5350"
+            android:layout_marginRight="12dp"
+            android:text="remove"
+            android:fontFamily="@font/lato"
+            android:textColor="#ffffff"/>
+        <Button
+            android:id="@+id/edit_product_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/colorPrimary"
+            android:layout_marginLeft="12dp"
+            android:text="edit"
+            android:fontFamily="@font/lato"
+            android:textColor="#ffffff"/>
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>
