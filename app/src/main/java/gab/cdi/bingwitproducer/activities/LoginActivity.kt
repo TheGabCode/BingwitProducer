@@ -24,14 +24,20 @@ import gab.cdi.bingwitproducer.utils.DialogUtil
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_login.view.*
 import org.json.JSONObject
+import java.nio.charset.Charset
 
-class LoginActivity : AppCompatActivity(), View.OnClickListener, ForgotPasswordDialogFragment.OnFragmentInteractionListener, EnterPasswordResetCodeDialogFragment.OnFragmentInteractionListener{
+class LoginActivity : AppCompatActivity(), View.OnClickListener, ForgotPasswordDialogFragment.OnFragmentInteractionListener, EnterPasswordResetCodeDialogFragment.OnFragmentInteractionListener, CustomAlertDialogFragment.OnFragmentInteractionListener{
 
     private lateinit var mSession : Session
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
         mSession = Session(this@LoginActivity)
+        if(mSession.isUserLoggedIn() == true){
+            checkUserStatus(mSession.id()!!)
+
+        }
+        setContentView(R.layout.activity_login)
+
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
@@ -44,7 +50,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, ForgotPasswordD
             }
             R.id.btnSignIn -> {
                preSignIn()
-                //signIn()
             }
 
             R.id.forgot_password_option -> {
@@ -56,59 +61,61 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, ForgotPasswordD
 
 
     private fun preSignIn(){
-        val message = "Checking user"
+        if(TextUtils.isEmpty(login_username.text.toString().trim())){
+            DialogUtil.showErrorDialog(supportFragmentManager,1500,"Fill in username")
+            return
+        }
+
+        if(TextUtils.isEmpty(login_password.text.toString().trim())){
+            DialogUtil.showErrorDialog(supportFragmentManager,1500,"Fill in password")
+            return
+        }
+        val message : String? = null
         val params : HashMap<String,String> = HashMap()
         val header : HashMap<String,String> = HashMap()
-
         header.put("Content-Type","application/x-www-form-urlencoded")
-
         params.put("username",login_username.text.toString().trim())
-
         ApiRequest.post(this, API.CHECK_USER,header,params, message,
                 object : ApiRequest.URLCallback {
                     override fun didURLResponse(response: String) {
-                        Log.d("Sing in", response)
                         val json = JSONObject(response)
+                        Log.d("Login",response)
                         if(json.getString("type") == "producer"){
                             signIn()
                         }
                         else{
-                            Toast.makeText(this@LoginActivity,"Invalid user",Toast.LENGTH_SHORT).show()
+                            DialogUtil.showErrorDialog(supportFragmentManager,1500,"Invalid user")
                         }
                     }
-
                 },
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
-                        Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
-                        Log.d("Error ", error.toString())
+                        //Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
+                        DialogUtil.showVolleyErrorDialog(supportFragmentManager,error)
                     }
                 })
     }
 
     private fun signIn(){
         if(TextUtils.isEmpty(login_username.text.toString().trim())){
-            Toast.makeText(this,"Fill in username",Toast.LENGTH_SHORT).show()
+            DialogUtil.showErrorDialog(supportFragmentManager,1500,"Fill in username")
             return
         }
 
         if(TextUtils.isEmpty(login_password.text.toString().trim())){
-            Toast.makeText(this,"Fill in username",Toast.LENGTH_SHORT).show()
+            DialogUtil.showErrorDialog(supportFragmentManager,1500,"Fill in password")
             return
         }
 
         val params : HashMap<String,String> = HashMap()
         params.put("username",login_username.text.toString().trim())
         params.put("password",login_password.text.toString().trim())
-
         val headers : HashMap<String,String> = HashMap()
         headers.put("Content-Type","application/x-www-form-urlencoded")
-
         val message = "Signing in..."
         ApiRequest.post(this, API.SIGN_IN,params, message,
                 object : ApiRequest.URLCallback {
                     override fun didURLResponse(response: String) {
-                        Log.d("Sing in", response)
                         val json = JSONObject(response)
                         mSession.authorize(response)
                         if(json["success"] == true){
@@ -119,8 +126,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, ForgotPasswordD
                 },
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
-                        Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
-                        Log.d("Error ", error.toString())
+                        DialogUtil.showVolleyErrorDialog(supportFragmentManager,error)
                     }
                 })
     }
@@ -129,15 +135,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, ForgotPasswordD
     }
 
     fun checkUserStatus(id : String) {
-
         val header : HashMap<String,String> = HashMap()
-
         val authorization = "Bearer ${mSession.token()}"
         header.put("Authorization",authorization)
-
         val params : HashMap<String,String> = HashMap()
-
-
         ApiRequest.get(this@LoginActivity,"${API.GET_USER}/$id",header,params,
                 object : ApiRequest.URLCallback {
                     override fun didURLResponse(response: String) {
@@ -162,7 +163,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener, ForgotPasswordD
                 },
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
-                        Toast.makeText(this@LoginActivity,"Error", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(this@LoginActivity,"Error", Toast.LENGTH_SHORT).show()
+                        DialogUtil.showVolleyErrorDialog(supportFragmentManager,error)
                         Log.d("Error ", error.toString())
                     }
                 })

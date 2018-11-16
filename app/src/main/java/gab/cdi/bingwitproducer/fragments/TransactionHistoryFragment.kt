@@ -18,7 +18,17 @@ import gab.cdi.bingwitproducer.R
 import kotlinx.android.synthetic.main.app_bar_main.*
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.app.FragmentStatePagerAdapter
+import android.util.Log
 import android.widget.Toast
+import com.android.volley.VolleyError
+import gab.cdi.bingwit.session.Session
+import gab.cdi.bingwitproducer.https.API
+import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.models.Transaction
+import kotlinx.android.synthetic.main.fragment_transaction_history.*
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 
 
 /**
@@ -33,26 +43,28 @@ class TransactionHistoryFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     var mPosition: Int? = null
+    lateinit var mSession : Session
+    var transactions_on_going_arraylist : ArrayList<Transaction> = ArrayList()
+    var transactions_delivered_arraylist : ArrayList<Transaction> = ArrayList()
+    var transactions_returned_arraylist : ArrayList<Transaction> = ArrayList()
+
+
     private var mListener: OnFragmentInteractionListener? = null
     private lateinit var transaction_tab_layout : TabLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             mPosition = arguments!!.getInt(POSITION)
-
         }
-
-
+        mSession = Session(context)
+        //fetchTransactions()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-
-
         val view = inflater.inflate(R.layout.fragment_transaction_history, container, false)
-        initUI(view)
-        activity?.toolbar?.title = "Transaction History"
+        activity?.toolbar?.title = "Transactions"
         return view
     }
 
@@ -63,26 +75,55 @@ class TransactionHistoryFragment : Fragment() {
         }
     }
 
-    fun initUI(view : View){
-        transaction_tab_layout = view.findViewById(R.id.transaction_history_tabs)
-        var transactions_view_pager : ViewPager = view.findViewById(R.id.container)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initUI()
+    }
+
+    fun initUI(){
+        container.offscreenPageLimit = 4
         val mPagerAdapter = SectionsPagerAdapter(fragmentManager)
-        transactions_view_pager.adapter = mPagerAdapter
+        container.adapter = mPagerAdapter
 
 
-        transactions_view_pager.addOnPageChangeListener(object : TabLayout.TabLayoutOnPageChangeListener(transaction_tab_layout){
+        container.addOnPageChangeListener(object : TabLayout.TabLayoutOnPageChangeListener(transaction_history_tabs){
+        })
+
+        transaction_history_tabs.addOnTabSelectedListener(object : TabLayout.ViewPagerOnTabSelectedListener(container){
 
         })
 
-        transaction_tab_layout.addOnTabSelectedListener(object : TabLayout.ViewPagerOnTabSelectedListener(transactions_view_pager){
-
-        })
-
-        transactions_view_pager.setCurrentItem(mPosition!!)
-
-
+        container.setCurrentItem(mPosition!!)
 
     }
+
+    fun fetchTransactions() {
+        val headers : HashMap<String,String> = HashMap()
+        headers.put("Content-Type","application/x-www-form-urlencoded")
+
+        val authorization = "Bearer ${mSession.token()}"
+        headers.put("Authorization", authorization)
+
+
+        ApiRequest.get(context, "${API.GET_TRANSACTIONS}/${mSession.id()}/transactions",headers, HashMap(),object : ApiRequest.URLCallback{
+            override fun didURLResponse(response: String) {
+                Log.d("Transactions",response)
+                val json : JSONArray = JSONObject(response).optJSONObject("transaction").optJSONArray("rows")
+
+                for(i in 0..json.length()-1) {
+                    val transaction_object = json[i] as JSONObject
+                    transactions_on_going_arraylist.add(Transaction(transaction_object))
+                }
+            }
+        },
+                object : ApiRequest.ErrorCallback{
+                    override fun didURLError(error: VolleyError) {
+
+                    }
+                })
+    }
+
+
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
@@ -142,24 +183,15 @@ class TransactionHistoryFragment : Fragment() {
         override fun getItem(position: Int): Fragment? {
             var fragment : Fragment? = null
             if(position == 0){
-                fragment = ViewTransactionsFragment()
-                val bundle = Bundle()
-                bundle.putString("transaction_status","on-going")
-                fragment.arguments = bundle
+                fragment = ViewTransactionsFragment.newInstance("on-going")
                 return fragment
             }
             else if(position == 1){
-                fragment = ViewTransactionsFragment()
-                val bundle = Bundle()
-                bundle.putString("transaction_status","delivered")
-                fragment.arguments = bundle
+                fragment = ViewTransactionsFragment.newInstance("delivered")
                 return fragment
             }
             else if(position == 2){
-                fragment = ViewTransactionsFragment()
-                val bundle = Bundle()
-                bundle.putString("transaction_status","returned")
-                fragment.arguments = bundle
+                fragment = ViewTransactionsFragment.newInstance("returned")
                 return fragment
             }
             else if(position == 3){

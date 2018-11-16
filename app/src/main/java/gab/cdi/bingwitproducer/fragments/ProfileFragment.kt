@@ -16,10 +16,13 @@ import gab.cdi.bingwit.session.Session
 import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.activities.MainActivity
 import gab.cdi.bingwitproducer.activities.RegistrationVerificationActivity
+import gab.cdi.bingwitproducer.dependency_modules.GlideApp
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.utils.DialogUtil
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.fragment_view_product_2.*
 import org.json.JSONObject
 
 
@@ -78,7 +81,7 @@ class ProfileFragment : Fragment() {
         edit_profile_button = view.findViewById(R.id.profile_edit_button)
         edit_profile_button.setOnClickListener {
             val mActivity = activity as MainActivity
-            mActivity.displaySelectedId(R.id.nav_edit_profile,HashMap())
+            mActivity.fragmentAddBackStack(EditProfileFragment(),"edit_profile_fragment")
         }
 
         getUser()
@@ -101,15 +104,22 @@ class ProfileFragment : Fragment() {
                         Log.d("Get user",response)
                         val json = JSONObject(response)
                         val user = json.getJSONObject("user")
-                        user_username.text = user.getString("username")
-                        user_fullname.text = user.getString("full_name")
-                        user_address.text = user.getString("address")
-                        user_phone_number.text = user.getString("contact_number")
+                        user_username?.text = user.getString("username")
+                        user_fullname?.text = user.getString("full_name")
+                        user_address?.text = user.getString("address")
+                        user_area.text = user.getJSONObject("Area").getString("area_address")
+                        user_phone_number?.text = user.getString("contact_number")
+
+                        if(this@ProfileFragment.view?.isAttachedToWindow == true){
+                            GlideApp.with(this@ProfileFragment).load(user.getString("image_url")).placeholder(R.drawable.ic_user_profile).circleCrop().into(profile_image)
+                        }
+
                     }
                 },
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
                         Toast.makeText(context,"Error", Toast.LENGTH_SHORT).show()
+                        DialogUtil.showVolleyErrorDialog(activity!!.supportFragmentManager,error)
                         Log.d("Error ", error.toString())
                     }
                 })

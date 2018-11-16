@@ -54,6 +54,12 @@
     <string name="enter_password_reset_code">Enter Password Reset Code</string>
     <string name="reset_code">Reset Code</string>
     <string name="send_reset_code">Send Reset Code</string>
+    <string name="seconds">seconds</string>
+    <string name="upload_image_from_phone">Upload image from phone</string>
+    <string name="take_a_picture">Take a picture</string>
+    <string name="area">Area</string>
+    <string name="are_you_sure_you_want_to_set_this_transaction_s_status_to_">Are you sure you want to set this transaction\'s status to</string>
+    <string name="are_you_sure_you_want_to_change_this_transaction_s_status_to_status_you_will_no_longer_be_able_to_revert_this_previous_states">Are you sure you want to change this transaction\'s status to _status_? You will no longer be able to revert this to previous states.</string>
     <string-array name="transaction_statuses">
         <item>Order placed</item>
         <item>Ready for delivery</item>

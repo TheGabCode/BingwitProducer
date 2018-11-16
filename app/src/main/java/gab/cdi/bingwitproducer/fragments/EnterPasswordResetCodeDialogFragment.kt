@@ -1,5 +1,6 @@
 package gab.cdi.bingwitproducer.fragments
 
+import android.app.Dialog
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.Toast
 import com.android.volley.VolleyError
 import gab.cdi.bingwit.session.Session
@@ -17,6 +19,7 @@ import gab.cdi.bingwit.session.Session
 import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.utils.DialogUtil
 import kotlinx.android.synthetic.main.fragment_enter_password_reset_code_dialog.*
 import org.json.JSONObject
 
@@ -61,6 +64,13 @@ class EnterPasswordResetCodeDialogFragment : DialogFragment() {
         }
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+
+        dialog.window.requestFeature(Window.FEATURE_NO_TITLE)
+        return dialog
+    }
+
     fun sendPasswordResetCode(){
 
         val message = "Please wait..."
@@ -92,7 +102,7 @@ class EnterPasswordResetCodeDialogFragment : DialogFragment() {
                 },
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
-                        Toast.makeText(this@EnterPasswordResetCodeDialogFragment.context,"Errorzzz", Toast.LENGTH_SHORT).show()
+                        DialogUtil.showVolleyErrorDialog(activity!!.supportFragmentManager,error)
                         Log.d("Error ", error.toString())
                     }
 

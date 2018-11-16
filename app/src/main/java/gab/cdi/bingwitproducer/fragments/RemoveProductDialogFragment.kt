@@ -1,18 +1,28 @@
 package gab.cdi.bingwitproducer.fragments
 
+import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.Button
 import android.widget.TextView
+import com.android.volley.VolleyError
+import gab.cdi.bingwit.session.Session
 
 import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.activities.MainActivity
+import gab.cdi.bingwitproducer.https.API
+import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.utils.DialogUtil
+import kotlinx.android.synthetic.main.app_bar_main.*
 
 /**
  * A simple [Fragment] subclass.
@@ -30,13 +40,23 @@ class RemoveProductDialogFragment : DialogFragment() {
     private lateinit var remove_product_yes_button : Button
     private lateinit var remove_product_no_button : Button
     private var mListener: OnFragmentInteractionListener? = null
-
+    private lateinit var mSession : Session
+    private lateinit var product_id : String
+    private lateinit var product_type : String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
             mParam1 = arguments!!.getString(ARG_PARAM1)
             mParam2 = arguments!!.getString(ARG_PARAM2)
         }
+        mSession = Session(context)
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.window.requestFeature(Window.FEATURE_NO_TITLE)
+        return dialog
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -48,8 +68,10 @@ class RemoveProductDialogFragment : DialogFragment() {
     }
 
     fun initUI(view : View){
-        var remove_prompt_text = view.findViewById<TextView>(R.id.remove_product_prompt_text)
-        var product_name : String = arguments!!.getString("product_name")
+        val remove_prompt_text = view.findViewById<TextView>(R.id.remove_product_prompt_text)
+        val product_name : String = arguments!!.getString("product_name")
+        product_id = arguments!!.getString("product_id")
+        product_type = arguments!!.getString("product_type")
         remove_prompt_text.text = remove_prompt_text.text.toString().replace("this_product",product_name)
         remove_product_no_button = view.findViewById(R.id.remove_product_no_button)
         remove_product_yes_button = view.findViewById(R.id.remove_product_yes_button)
@@ -59,13 +81,80 @@ class RemoveProductDialogFragment : DialogFragment() {
         }
 
         remove_product_yes_button.setOnClickListener {
-            val mActivity = activity as MainActivity
-            mActivity.displaySelectedId(R.id.nav_view_products,HashMap())
-            this.dismiss()
+            when(product_type){
+                "fixed" -> deleteProductById()
+
+                "auction" -> deleteAuctionProductById()
+            }
+
+
 
 
         }
     }
+
+    fun deleteProductById(){
+        val message = "Removing..."
+
+        val headers : HashMap<String,String> = HashMap()
+        val authorization = "Bearer ${mSession.token()}"
+
+        headers.put("Authorization",authorization)
+        Log.d("User id",mSession.id())
+        Log.d("token",mSession.token())
+        ApiRequest.delete(context, "${API.DELETE_PRODUCT_BY_ID}products/$product_id",message,headers,object : ApiRequest.URLCallback{
+            override fun didURLResponse(response: String) {
+                Log.d("Delete",response)
+                val mActivity = activity as MainActivity
+                mActivity.fm.popBackStackImmediate()
+                mActivity.fab.show()
+                val mFragment = mActivity.supportFragmentManager.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductsFragment
+                mFragment.mPosition = 0
+                mFragment.initUI()
+//                mActivity.fragmentReplaceBackStack(ViewProductsFragment.newInstance(0),"remove_product")
+//                mActivity.displaySelectedId(R.id.nav_view_products, hashMapOf("tab_position" to 0))
+                this@RemoveProductDialogFragment.dismiss()
+            }
+        },
+                object : ApiRequest.ErrorCallback{
+                    override fun didURLError(error: VolleyError) {
+                        DialogUtil.showVolleyErrorDialog(activity!!.supportFragmentManager,error)
+                        this@RemoveProductDialogFragment.dismiss()
+                    }
+                })
+    }
+
+    fun deleteAuctionProductById(){
+        val message = "Removing..."
+
+        val headers : HashMap<String,String> = HashMap()
+        val authorization = "Bearer ${mSession.token()}"
+
+        headers.put("Authorization",authorization)
+        Log.d("User id",mSession.id())
+        Log.d("token",mSession.token())
+        ApiRequest.delete(context, "${API.DELETE_AUCTION}/$product_id",message,headers,object : ApiRequest.URLCallback{
+            @SuppressLint("RestrictedApi")
+            override fun didURLResponse(response: String) {
+                Log.d("Delete",response)
+                val mActivity = activity as MainActivity
+                mActivity.fm.popBackStackImmediate()
+                mActivity.fab.show()
+                val mFragment = mActivity.supportFragmentManager.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductsFragment
+                mFragment.mPosition = 1
+                mFragment.initUI()
+                //mActivity.displaySelectedId(R.id.nav_view_products, hashMapOf("tab_position" to 1))
+               // mActivity.fragmentReplaceBackStack(ViewProductsFragment.newInstance(1),"remove_auction_product")
+                this@RemoveProductDialogFragment.dismiss()
+            }
+        },
+                object : ApiRequest.ErrorCallback{
+                    override fun didURLError(error: VolleyError) {
+                        this@RemoveProductDialogFragment.dismiss()
+                    }
+                })
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {

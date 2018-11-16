@@ -23,6 +23,7 @@ import gab.cdi.bingwitproducer.activities.MainActivity
 import gab.cdi.bingwitproducer.activities.RegistrationVerificationActivity
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.utils.DialogUtil
 import kotlinx.android.synthetic.main.fragment_change_password_dialog.*
 import org.json.JSONObject
 import java.nio.charset.Charset
@@ -96,7 +97,9 @@ class ChangePasswordDialogFragment : DialogFragment() {
         header.put("Content-Type","application/x-www-form-urlencoded")
         header.put("Authorization",authorization)
 
-        ApiRequest.put(this@ChangePasswordDialogFragment.context, API.CHANGE_PASSWORD,header,params,
+        val message = "Updating password"
+
+        ApiRequest.put(this@ChangePasswordDialogFragment.context, API.CHANGE_PASSWORD,message,header,params,
                 object : ApiRequest.URLCallback {
                     override fun didURLResponse(response: String) {
                         Log.d("Change password", response)
@@ -106,11 +109,11 @@ class ChangePasswordDialogFragment : DialogFragment() {
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
                         Log.d("Error ", error.toString())
-                        val body = String(error.networkResponse.data, Charset.forName("UTF-8"))
-                        val error_message = JSONObject(body).getJSONObject("err").getString("message")
-                        val dialog = CustomAlertDialogFragment.newInstance(error_message)
-                        dialog.show(this@ChangePasswordDialogFragment.activity?.supportFragmentManager,"change_password_error")
-                        this@ChangePasswordDialogFragment.dismiss()
+                        DialogUtil.showVolleyErrorDialog(this@ChangePasswordDialogFragment.fragmentManager!!,error)
+//                        val body = String.kt(error.networkResponse.data, Charset.forName("UTF-8"))
+//                        val error_message = JSONObject(body).getJSONObject("err").getString("message")
+//                        val dialog = CustomAlertDialogFragment.newInstance(error_message,1500)
+//                        dialog.show(this@ChangePasswordDialogFragment.activity?.supportFragmentManager,"change_password_error")
                     }
                 })
     }

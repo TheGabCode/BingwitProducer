@@ -83,7 +83,7 @@ class RegistrationBiographyActivity : AppCompatActivity(), View.OnClickListener 
 
 
     fun signIn(params : HashMap<String,String>) {
-        val message = "Signing in..."
+        val message : String? = null
         ApiRequest.post(this@RegistrationBiographyActivity,API.SIGN_IN,params,message,
                 object : ApiRequest.URLCallback {
                     override fun didURLResponse(response: String) {

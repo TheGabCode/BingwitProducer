@@ -5,18 +5,21 @@ import android.os.Bundle
 import android.view.View
 import gab.cdi.bingwitproducer.R
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.Toast
 import com.android.volley.VolleyError
 import gab.cdi.bingwit.session.Session
+import gab.cdi.bingwitproducer.fragments.CustomAlertDialogFragment
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.utils.DialogUtil
 import org.json.JSONObject
 
 
-class RegistrationVerificationActivity : AppCompatActivity(), View.OnClickListener {
+class RegistrationVerificationActivity : AppCompatActivity(), View.OnClickListener, CustomAlertDialogFragment.OnFragmentInteractionListener {
     private lateinit var registration_verification_code_input_text : EditText
     private lateinit var mSession : Session
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +30,18 @@ class RegistrationVerificationActivity : AppCompatActivity(), View.OnClickListen
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    override fun onBackPressed() {
+        val intent = Intent(this,LoginActivity::class.java)
+        startActivity(intent)
+        mSession.deauthorize()
+        finish()
+    }
     fun initUI(){
         registration_verification_code_input_text = findViewById(R.id.registration_verification_code_input_text)
+    }
+
+    override fun onFragmentInteraction(uri: Uri) {
+
     }
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id = item?.itemId
@@ -56,15 +69,15 @@ class RegistrationVerificationActivity : AppCompatActivity(), View.OnClickListen
 
 //    fun verifyRegistration(){
 //        val this_intent = intent
-//        val verification_details = this_intent.getSerializableExtra("verification_details") as HashMap<String,String>
+//        val verification_details = this_intent.getSerializableExtra("verification_details") as HashMap<String.kt,String.kt>
 //
-//        val params : HashMap<String,String> = HashMap()
+//        val params : HashMap<String.kt,String.kt> = HashMap()
 //        params.put("username",verification_details["username"]!!)
 //        params.put("password",verification_details["password"]!!)
 //
 //        ApiRequest.post(this@RegistrationVerificationActivity,API.SIGN_IN,params,
 //                object : ApiRequest.URLCallback {
-//                    override fun didURLResponse(response: String) {
+//                    override fun didURLResponse(response: String.kt) {
 //                        Log.d("Sign in", response)
 //                        mSession.authorize(response)
 //                        //if account not yet verified
@@ -111,8 +124,9 @@ class RegistrationVerificationActivity : AppCompatActivity(), View.OnClickListen
                 },
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
-                        Toast.makeText(applicationContext,"Error", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(applicationContext,"Error", Toast.LENGTH_SHORT).show()
                         Log.d("Error ", error.toString())
+                        DialogUtil.showVolleyErrorDialog(supportFragmentManager,error)
                     }
 
                 })
@@ -134,7 +148,8 @@ class RegistrationVerificationActivity : AppCompatActivity(), View.OnClickListen
         headers.put("Content-Type","application/x-www-form-urlencoded")
         headers.put("Authorization",authorization)
 
-        ApiRequest.put(this, API.RESEND_VERIFICATION,headers,params,
+        val message = "Requesting for verification code..."
+        ApiRequest.put(this, API.RESEND_VERIFICATION,message,headers,params,
                 object : ApiRequest.URLCallback {
                     override fun didURLResponse(response: String) {
                         Log.d("Resend Verification",response)

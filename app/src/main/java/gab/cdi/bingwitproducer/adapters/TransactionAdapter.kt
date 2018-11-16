@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import com.bumptech.glide.request.RequestOptions
@@ -14,6 +15,9 @@ import gab.cdi.bingwitproducer.activities.MainActivity
 import gab.cdi.bingwitproducer.dependency_modules.GlideApp
 import gab.cdi.bingwitproducer.models.Product
 import gab.cdi.bingwitproducer.models.Transaction
+import gab.cdi.bingwitproducer.extensions.convertToCurrencyDecimalFormat
+import gab.cdi.bingwitproducer.fragments.ViewTransactionFragment
+import gab.cdi.bingwitproducer.utils.TimeUtil
 
 /**
  * Created by Default on 09/10/2018.
@@ -27,54 +31,57 @@ class TransactionAdapter(val transactions : ArrayList<Transaction>, val context 
         return transactions.size
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.fragment_product_transaction_item, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.fragment_transaction_item_2, parent, false)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val this_transaction = transactions[position]
-        holder.transaction_product_name_textview.text = this_transaction.product.product_name
-        holder.transaction_product_type_textview.text = this_transaction.product.product_type
-        holder.transaction_product_weight_textview.text = this_transaction.product.product_weight.toString() + "Kg"
-        if(this_transaction.product.product_selling_method == 1){
-            holder.transaction_product_price_textview.text = this_transaction.product.product_price.toString() + "PHP/Kg"
-        }
-        else{
-            holder.transaction_product_price_textview.text = this_transaction.product.product_price.toString() + "PHP"
-        }
-        holder.transaction_product_status.text = this_transaction.transaction_status
 
-        var status : String = this_transaction.transaction_status!!
-        var position : Int?
-        when(status){
-            "On-going","Ready for delivery" -> {
-                position = 0
-            }
-            "Delivered" -> {
-                position = 1
-            }
-            "Returned" -> {
-                position = 2
-            }
-            else -> {
-                position = 0
-            }
-        }
-
-
+        holder.transaction_status.text = this_transaction.status.toUpperCase()
+        holder.transaction_tracking_number.text = this_transaction.tracking_number
+        holder.transaction_total_amount.text = "P${this_transaction.total_amount.convertToCurrencyDecimalFormat()}"
+        holder.transaction_last_updated.text = "Last updated ${TimeUtil.changeDateFormatToUserFriendlyDate(this_transaction.updatedAt)}"
+//        holder.transaction_rating.rating = this_transaction.rating.toFloat()
+//        if(this_transaction.tracking_number != null){
+//            holder.transaction_tracking_number.text = this_transaction.tracking_number
+//        }
+//
+//        holder.transaction_total_amount.text = "Php ${this_transaction.total_amount.convertToCurrencyDecimalFormat()}"
+//        holder.transaction_consumer_name.text = this_transaction.consumer_name
+//        holder.transaction_consumer_address.text = this_transaction.address
+//        val created_at_tokens = this_transaction.createdAt.split("T")
+//        val created_at_time_tokens = created_at_tokens[1].split(":")
+//        holder.transaction_placed_on.text = "Transaction placed on ${TimeUtil.changeDateFormatToUserFriendlyDate(this_transaction.createdAt)}"
+//        val updated_at_tokens = this_transaction.updatedAt.split("T")
+//        val updated_at_time_tokens = updated_at_tokens[1].split(":")
+//
+//        holder.transaction_last_updated.text = "Transaction last updated on ${TimeUtil.changeDateFormatToUserFriendlyDate(this_transaction.updatedAt)} "
+//        holder.transaction_comment.text = this_transaction.comment
+//
         holder.itemView.setOnClickListener {
-            var mActivity = context as MainActivity
-            var params : HashMap<String,Any> = hashMapOf("position" to position as Any)
-            mActivity.displaySelectedId(R.id.nav_view_transaction,params)
+//            val mActivity = context as MainActivity
+//            mActivity.displaySelectedId(R.id.nav_view_transaction, hashMapOf("position" to 0,"transaction_id" to this_transaction.id))
+            val mActivity = context as MainActivity
+            mActivity.fragmentAddBackStack(ViewTransactionFragment.newInstance(this_transaction),"view_transaction")
         }
+
+
     }
 
     class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-        var transaction_product_name_textview = view.findViewById<TextView>(R.id.transaction_product_name)
-        var transaction_product_type_textview = view.findViewById<TextView>(R.id.transaction_product_type)
-        var transaction_product_weight_textview = view.findViewById<TextView>(R.id.transaction_product_ordered_weight)
-        var transaction_product_price_textview = view.findViewById<TextView>(R.id.transaction_product_price_total_order)
-        var transaction_product_status = view.findViewById<TextView>(R.id.transaction_status)
-        var transaction_product_image = view.findViewById<ImageView>(R.id.transaction_product_image)
+        val transaction_tracking_number : TextView = view.findViewById(R.id.transaction_tracking_number)
+        val transaction_total_amount : TextView = view.findViewById(R.id.transaction_total_amount)
+        val transaction_status : TextView = view.findViewById(R.id.transaction_status)
+        val transaction_last_updated : TextView = view.findViewById(R.id.transaction_last_updated)
+//        val transaction_status : TextView = view.findViewById(R.id.transaction_status)
+//        val transaction_rating : RatingBar = view.findViewById(R.id.transaction_rating)
+//        val transaction_tracking_number : TextView = view.findViewById(R.id.transaction_tracking_number)
+//        val transaction_total_amount : TextView = view.findViewById(R.id.transaction_total_amout)
+//        val transaction_consumer_name : TextView = view.findViewById(R.id.transaction_consumer_name)
+//        val transaction_consumer_address : TextView = view.findViewById(R.id.transaction_consumer_address)
+//        val transaction_placed_on : TextView = view.findViewById(R.id.transaction_placed_on)
+//        val transaction_last_updated : TextView = view.findViewById(R.id.transaction_last_updated)
+//        val transaction_comment : TextView = view.findViewById(R.id.transaction_comment)
     }
 }

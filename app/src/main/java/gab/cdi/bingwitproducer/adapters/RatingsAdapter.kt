@@ -31,20 +31,20 @@ class RatingsAdapter(val ratings : ArrayList<Transaction>, val context : Context
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val this_rating = ratings[position]
-        holder.rating_user_fullname.text = this_rating.consumer_name
-        holder.rating_purchased_date.text = "Purchased on " + this_rating.transaction_date_ordered
-        holder.rating_rating_bar.rating = this_rating.transaction_rating.toFloat()
-        holder.rating_comment.text = this_rating.transaction_comment
-        holder.rating_product_name.text = this_rating.product.product_name
-        holder.rating_product_type.text = this_rating.product.product_type
-        holder.rating_shipping_address.text = this_rating.transaction_address
-        holder.rating_product_weight.text = this_rating.product_ordered_quantity.toString() + "Kg"
-        if(this_rating.product.product_selling_method == 1){
-            holder.rating_product_price_per_kilogram.text = this_rating.transaction_total_amount.toString() + "PHP"
-        }
-        else{
-            holder.rating_product_price_per_kilogram.text = this_rating.transaction_auction_sold_price.toString() + "PHP"
-        }
+//        holder.rating_user_fullname.text = this_rating.consumer_name
+//        holder.rating_purchased_date.text = "Purchased on " + this_rating.transaction_date_ordered
+//        holder.rating_rating_bar.rating = this_rating.transaction_rating.toFloat()
+//        holder.rating_comment.text = this_rating.transaction_comment
+//        holder.rating_product_name.text = this_rating.product.product_name
+//        holder.rating_product_type.text = this_rating.product.product_type
+//        holder.rating_shipping_address.text = this_rating.transaction_address
+//        holder.rating_product_weight.text = this_rating.product_ordered_quantity.toString() + "Kg"
+//        if(this_rating.product.product_selling_method == 1){
+//            holder.rating_product_price_per_kilogram.text = this_rating.transaction_total_amount.toString() + "PHP"
+//        }
+//        else{
+//            holder.rating_product_price_per_kilogram.text = this_rating.transaction_auction_sold_price.toString() + "PHP"
+//        }
 
 
 

@@ -19,6 +19,7 @@ class Session {
     var LOGGED = "LOGGED"
     var USER_ID = "USER_ID"
     var USER_DATA = "USER_DATA"
+    var USER_VERIFIED = "USER_VERIFIED"
 
 
     constructor(context: Context?) {

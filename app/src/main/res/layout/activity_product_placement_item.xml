@@ -1,86 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
-    android:paddingRight="16dp"
-    android:paddingLeft="16dp"
-    android:background="@drawable/border_bottom_light_light_gray_white_background">
-    <ImageView
-        android:id="@+id/product_image"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:src="@drawable/fish"
-        />
+    android:layout_margin="4dp"
+    android:elevation="6dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="8dp"
+    android:paddingTop="8dp"
+    android:orientation="horizontal"
+    android:background="#ffffff"
+    android:weightSum="1">
+    <FrameLayout
+        android:layout_gravity="center"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
 
-    <LinearLayout
-        android:id="@+id/product_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.098"
-        android:layout_marginLeft="16dp"
-        app:layout_constraintStart_toEndOf="@+id/product_image"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-        <TextView
-            android:id="@+id/product_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_bold"
-            android:text="Product Name"
-            android:textAllCaps="true"
-            android:textColor="#000000"
-            android:textSize="16sp" />
-        <TextView
-            android:id="@+id/product_type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto"
-            android:text="Product Type "
-            android:textAllCaps="false"
-            android:textColor="#000000"
-            android:textSize="16sp" />
+        >
+        <ImageView
+            android:id="@+id/product_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:scaleType="centerCrop"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            />
+        <View
+            android:id="@+id/auction_timer_background"
+            android:visibility="invisible"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
 
+            android:background="#96000000"
+            android:layout_gravity="center"/>
+        <com.jackandphantom.circularprogressbar.CircleProgressbar
+
+            android:id="@+id/product_auction_timer"
+            android:visibility="invisible"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            app:cpb_backgroundProgressColor="#e0e0e0"
+            app:cpb_backgroundProgressWidth="10"
+            app:cpb_foregroundProgressColor="@color/colorPrimary"
+            app:cpb_foregroundProgressWidth="30"
+            app:cpb_touchEnabled="false"
+            app:cpb_clockwise="true"
+            app:cpb_roundedCorner="false"
+            />
         <TextView
-            android:id="@+id/product_weight"
+            android:id="@+id/auction_remaining_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_light"
-            android:text="Product Weight Kg"
-            android:textAllCaps="false"
-            android:textColor="#000000"
-            android:textSize="16sp" />
-        <TextView
-            android:id="@+id/product_price_per_kilogram"
-            android:layout_width="wrap_content"
+            android:visibility="invisible"
+            android:text="HH:mm:ss"
+            android:padding="16dp"
+            android:textSize="12sp"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:textColor="#fff"
+            android:fontFamily="@font/roboto_bold"/>
+    </FrameLayout>
+
+        <LinearLayout
+            android:layout_weight="0.8"
+            android:id="@+id/product_info"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/roboto_bold"
-            android:text="Price/Kg"
-            android:textAllCaps="false"
-            android:textColor="#FF5722"
-            android:textSize="16sp"/>
-    </LinearLayout>
-    <TextView
-        android:id="@+id/product_selling_method"
-        app:layout_constraintStart_toEndOf="@+id/product_info"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:textSize="14sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fontFamily="@font/roboto"
-        />
-</android.support.constraint.ConstraintLayout>
+            android:orientation="vertical"
+            android:paddingTop="16dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="16dp">
+            <TextView
+                android:id="@+id/product_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Product Name"
+                android:scrollHorizontally="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/product_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="Product Type "
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/product_weight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/roboto_light"
+                    android:text="Product Weight kg"
+                    android:textAllCaps="false"
+                    android:textColor="#000000"
+                    android:textSize="14sp" />
+            <TextView
+                android:id="@+id/product_price_per_kilogram"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_bold"
+                android:text="Price/Kg"
+                android:textAllCaps="false"
+                android:textColor="#FF5722"
+                android:textSize="14sp"/>
+            <TextView
+                android:visibility="gone"
+                android:id="@+id/auction_price_range"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="_start_ -> _end_"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="#000000"
+                android:textSize="14sp"/>
+
+
+            </LinearLayout>
+</LinearLayout>

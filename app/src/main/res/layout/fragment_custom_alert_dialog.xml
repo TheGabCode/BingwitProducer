@@ -18,7 +18,7 @@
             android:text="@string/this_is_an_alert_for_errors"
             android:fontFamily="@font/roboto"
             android:textColor="#000000"
-            android:textSize="20sp"
+            android:textSize="16sp"
             />
 
         <ImageView

@@ -3,14 +3,62 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="gab.cdi.bingwitproducer.fragments.DatePickerDialogFragment">
-    <DatePicker
+    tools:context="gab.cdi.bingwitproducer.fragments.TimePickerDialogFragment">
+    <TextView
+        android:id="@+id/time_picker_title"
+        android:layout_width="0dp"
+        app:layout_constraintWidth_percent="1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:id="@+id/add_product_auction_start_date_datepicker"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:textColor="#ffffff"
+        android:padding="16dp"
+        android:fontFamily="@font/roboto_bold"
+        android:textSize="24sp"/>
+    <TimePicker
+        android:timePickerMode="spinner"
+        android:theme="@style/AppTheme"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/time_picker_title"
+        android:id="@+id/add_product_auction_time_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:id="@+id/time_picker_controls"
+        app:layout_constraintTop_toBottomOf="@id/add_product_auction_time_picker"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp">
+        <TextView
+            android:id="@+id/_time_picker_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textAllCaps="true"
+            android:clickable="true"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="@color/colorPrimaryDark"
+            android:fontFamily="@font/roboto_bold"
+            android:padding="8dp"/>
+        <TextView
+            android:id="@+id/time_picker_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Confirm"
+            android:padding="8dp"
+            android:clickable="true"
+            android:textAllCaps="true"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="@color/colorPrimaryDark"
+            android:layout_marginStart="16dp"
+            android:fontFamily="@font/roboto_bold"/>
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

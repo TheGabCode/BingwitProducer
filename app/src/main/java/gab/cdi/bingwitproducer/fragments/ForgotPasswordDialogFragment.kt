@@ -19,6 +19,7 @@ import com.android.volley.VolleyError
 import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.utils.DialogUtil
 import org.json.JSONObject
 import java.nio.charset.Charset
 
@@ -77,7 +78,7 @@ class ForgotPasswordDialogFragment : DialogFragment() {
         }
         forgot_password_submit_button.setOnClickListener {
             if(!forgot_password_phone_number.text.toString().trim().matches("^(09|\\+639)\\d{9}\$".toRegex())){
-                Toast.makeText(context,"Wrong number format",Toast.LENGTH_SHORT).show()
+                DialogUtil.showErrorDialog(this@ForgotPasswordDialogFragment.activity!!.supportFragmentManager,2000,"Wrong number format")
             }
             else{
                 var phone_number_text_input = forgot_password_phone_number.text.toString().trim()
@@ -99,7 +100,8 @@ class ForgotPasswordDialogFragment : DialogFragment() {
         val params :  HashMap<String,String> = HashMap()
         params.put("contact_number",formatted_phone_number)
 
-        ApiRequest.put(this@ForgotPasswordDialogFragment.context, API.SEND_RESET_PASSWORD,header,params,
+        val message = "Requesting for password reset code"
+        ApiRequest.put(this@ForgotPasswordDialogFragment.context, API.SEND_RESET_PASSWORD,message,header,params,
                 object : ApiRequest.URLCallback {
                     override fun didURLResponse(response: String) {
                         Log.d("Change password", response)
@@ -112,7 +114,7 @@ class ForgotPasswordDialogFragment : DialogFragment() {
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
                         Log.d("Error ", error.toString())
-                        Log.d("contact_number",formatted_phone_number)
+                        DialogUtil.showVolleyErrorDialog(this@ForgotPasswordDialogFragment.activity?.supportFragmentManager!!,error)
                         this@ForgotPasswordDialogFragment.dismiss()
                     }
                 })

@@ -6,15 +6,25 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import com.android.volley.VolleyError
+import gab.cdi.bingwit.session.Session
 
 import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.adapters.TransactionAdapter
 import gab.cdi.bingwitproducer.dummy.Dummy
+import gab.cdi.bingwitproducer.https.API
+import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.models.Transaction
+import gab.cdi.bingwitproducer.utils.DialogUtil
+import kotlinx.android.synthetic.main.fragment_view_transactions.*
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * A simple [Fragment] subclass.
@@ -29,70 +39,173 @@ class ViewTransactionsFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var m_transaction_status: String? = null
     private lateinit var transactions_recycler_view : RecyclerView
+    var transactions_on_going_arraylist : ArrayList<Transaction> = ArrayList()
+    var transactions_delivered_arraylist : ArrayList<Transaction> = ArrayList()
+    var transactions_returned_arraylist : ArrayList<Transaction> = ArrayList()
     private var mListener: OnFragmentInteractionListener? = null
+    lateinit var mSession : Session
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mSession = Session(context)
         var bundle = this.arguments
         m_transaction_status = bundle?.getString("transaction_status")
-        when(m_transaction_status){
-            "on-going" -> {
-                Dummy().initDummyTransactionsOnGoing()
-                return
+    }
 
-            }
-            "delivered" -> {
-                Dummy().initDummyTransactionsDelivered()
-                return
-
-            }
-            "returned" -> {
-                Dummy().initDummyTransactionsReturned()
-                return
-            }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        transactions_recycler_view = view.findViewById(R.id.transactions_recycler_view)
+        transactions_recycler_view.layoutManager = LinearLayoutManager(context)
+        transactions_refresh_layout.setOnRefreshListener {
+            fetchTransactions(m_transaction_status!!)
         }
+        fetchTransactions(m_transaction_status!!)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_view_transactions, container, false)
-        var total_sales_layout = view.findViewById<LinearLayout>(R.id.transactions_delivered_total_container)
-        transactions_recycler_view = view.findViewById(R.id.transactions_recycler_view)
-        transactions_recycler_view.layoutManager = LinearLayoutManager(context)
-
-
-        when(m_transaction_status){
-            "on-going" -> {
-                total_sales_layout.visibility = View.GONE
-                Dummy().initDummyTransactionsOnGoing()
-                transactions_recycler_view.adapter = TransactionAdapter(Dummy.dummy_transactions_ongoing,context)
-                return view
-            }
-            "delivered" -> {
-                total_sales_layout.visibility = View.VISIBLE
-                Dummy().initDummyTransactionsDelivered()
-                transactions_recycler_view.adapter = TransactionAdapter(Dummy.dummy_transactions_delivered,context)
-                return view
-            }
-            "returned" -> {
-                total_sales_layout.visibility = View.GONE
-                Dummy().initDummyTransactionsReturned()
-                transactions_recycler_view.adapter = TransactionAdapter(Dummy.dummy_transactions_returned,context)
-                return view
-            }
-        }
-
 
         return view
 
     }
 
-    fun computeDeliveredSales(){
-        var total_sales : Double = 0.0
-        Dummy.dummy_transactions_delivered.forEach {
+    fun fetchTransactions() {
+        transactions_on_going_arraylist.clear()
+        transactions_delivered_arraylist.clear()
+        transactions_returned_arraylist.clear()
 
-        }
+        val headers : HashMap<String,String> = HashMap()
+        headers.put("Content-Type","application/x-www-form-urlencoded")
+
+        val authorization = "Bearer ${mSession.token()}"
+        headers.put("Authorization", authorization)
+
+
+        ApiRequest.get(context, "${API.GET_TRANSACTIONS}/${mSession.id()}/transactions",headers, HashMap(),object : ApiRequest.URLCallback{
+            override fun didURLResponse(response: String) {
+                Log.d("Transactions",response)
+                val json : JSONArray = JSONObject(response).optJSONObject("transaction").optJSONArray("rows")
+
+                for(i in 0..json.length()-1) {
+                    val transaction_object = json[i] as JSONObject
+                    if(transaction_object.optString("status") == "order placed" || transaction_object.optString("status") == "ready for delivery" || transaction_object.optString("status") == "shipped"){
+                        transactions_on_going_arraylist.add(Transaction(transaction_object))
+                    }
+
+                    if(transaction_object.optString("status") == "delivered"){
+                        transactions_delivered_arraylist.add(Transaction(transaction_object))
+                    }
+
+                    if(transaction_object.optString("status") == "returned upon delivery"){
+                        transactions_returned_arraylist.add(Transaction(transaction_object))
+                    }
+
+                }
+
+
+                when(m_transaction_status){
+                    "on-going" -> {
+                        val on_going_transaction_adapter = TransactionAdapter(transactions_on_going_arraylist,context)
+                        on_going_transaction_adapter.notifyDataSetChanged()
+                        transactions_recycler_view.adapter = on_going_transaction_adapter
+                    }
+                    "delivered" -> {
+                        val delivered_transaction_adapter = TransactionAdapter(transactions_delivered_arraylist,context)
+                        delivered_transaction_adapter.notifyDataSetChanged()
+                        transactions_recycler_view.adapter =  delivered_transaction_adapter
+
+                    }
+                    "returned" -> {
+                        val returned_transaction_adapter = TransactionAdapter(transactions_returned_arraylist,context)
+                        returned_transaction_adapter.notifyDataSetChanged()
+                        transactions_recycler_view.adapter = returned_transaction_adapter
+
+                    }
+                }
+                transactions_recycler_view.setHasFixedSize(true)
+                if(transactions_refresh_layout.isRefreshing){
+                    transactions_refresh_layout.isRefreshing = false
+                }
+            }
+
+        },
+                object : ApiRequest.ErrorCallback{
+                    override fun didURLError(error: VolleyError) {
+                        DialogUtil.showVolleyErrorDialog(activity!!.supportFragmentManager,error)
+                    }
+                })
+    }
+
+    fun fetchTransactions(status : String) {
+        val headers : HashMap<String,String> = HashMap()
+        headers.put("Content-Type","application/x-www-form-urlencoded")
+
+        val authorization = "Bearer ${mSession.token()}"
+        headers.put("Authorization", authorization)
+
+
+        ApiRequest.get(context, "${API.GET_TRANSACTIONS}/${mSession.id()}/transactions",headers, HashMap(),object : ApiRequest.URLCallback{
+            override fun didURLResponse(response: String) {
+                Log.d("Transactions",response)
+                val json : JSONArray = JSONObject(response).optJSONObject("transaction").optJSONArray("rows")
+                    when(status) {
+                        "on-going" -> {
+                            transactions_on_going_arraylist.clear()
+                            for (i in 0..json.length() - 1) {
+                                val transaction_object = json[i] as JSONObject
+                                if (transaction_object.optString("status") == "order placed" || transaction_object.optString("status") == "ready for delivery" || transaction_object.optString("status") == "shipped") {
+                                    transactions_on_going_arraylist.add(Transaction(transaction_object))
+                                }
+                                val on_going_transaction_adapter = TransactionAdapter(transactions_on_going_arraylist, context)
+                                on_going_transaction_adapter.notifyDataSetChanged()
+                                transactions_recycler_view.adapter = on_going_transaction_adapter
+                            }
+                        }
+
+                        "delivered" -> {
+                            transactions_delivered_arraylist.clear()
+                            for(i in 0..json.length()-1){
+                                val transaction_object = json[i] as JSONObject
+                                if(transaction_object.optString("status") == "delivered"){
+                                    transactions_delivered_arraylist.add(Transaction(transaction_object))
+                                }
+                            }
+                            val delivered_transaction_adapter = TransactionAdapter(transactions_delivered_arraylist,context)
+                            delivered_transaction_adapter.notifyDataSetChanged()
+                            transactions_recycler_view.adapter =  delivered_transaction_adapter
+
+                        }
+
+                        "returned" -> {
+                            transactions_returned_arraylist.clear()
+                            for(i in 0..json.length()-1){
+                                val transaction_object = json[i] as JSONObject
+                                if(transaction_object.optString("status") == "returned upon delivery"){
+                                    transactions_returned_arraylist.add(Transaction(transaction_object))
+                                }
+                            }
+                            val returned_transaction_adapter = TransactionAdapter(transactions_returned_arraylist,context)
+                            returned_transaction_adapter.notifyDataSetChanged()
+                            transactions_recycler_view.adapter = returned_transaction_adapter
+
+                        }
+
+                    }
+
+                transactions_recycler_view.setHasFixedSize(true)
+                if(transactions_refresh_layout.isRefreshing){
+                    transactions_refresh_layout.isRefreshing = false
+                }
+            }
+
+        },
+                object : ApiRequest.ErrorCallback{
+                    override fun didURLError(error: VolleyError) {
+                        DialogUtil.showVolleyErrorDialog(activity!!.supportFragmentManager,error)
+                    }
+                })
     }
 
     // TODO: Rename method, update argument and hook method into UI event

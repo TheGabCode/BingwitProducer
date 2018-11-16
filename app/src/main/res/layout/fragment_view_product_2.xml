@@ -11,50 +11,84 @@
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <android.support.constraint.ConstraintLayout
             android:id="@+id/view_product_image_options_layout"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:background="#ffffff"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
             <ImageView
                 android:id="@+id/product_image"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:background="#ffffff"
-                android:src="@drawable/fish"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <View
-                android:id="@+id/auction_timer_background"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:background="#96000000"
+            <FrameLayout
+                android:id="@+id/timer"
+                android:visibility="invisible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="1.0" />
-
-                <douglasspgyn.com.github.circularcountdown.CircularCountdown
-                    android:id="@+id/auction_timer"
+                app:layout_constraintVertical_bias="1.0" >
+                <View
+                    android:id="@+id/auction_timer_background"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    app:countdownBackgroundColor="#e0e0e0"
-                    app:countdownForegroundColor="@color/colorPrimary"
-                    app:countdownTextColor="@color/colorPrimary"
-                    app:countdownTextSize="24sp"
+                    android:background="#96000000"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0" />
+
+                <TextView
+                    android:visibility="visible"
+                    android:id="@+id/remaining_time_text"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:text="@string/seconds"
+                    android:padding="16dp"
+                    android:textAlignment="center"
+                    android:textColor="#fff"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textSize="12sp"
+                    android:gravity="center"                    app:layout_constraintStart_toStartOf="@id/auction_timer"
+                    app:layout_constraintBottom_toBottomOf="@id/auction_timer"
+                    app:layout_constraintTop_toTopOf="@id/auction_timer"
+                    app:layout_constraintEnd_toEndOf="@id/auction_timer"
+                    />
+
+
+                <com.jackandphantom.circularprogressbar.CircleProgressbar
+                    android:id="@+id/auction_timer"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:cpb_backgroundProgressColor="#e0e0e0"
+                    app:cpb_backgroundProgressWidth="10"
+                    app:cpb_foregroundProgressColor="@color/colorPrimary"
+                    app:cpb_foregroundProgressWidth="30"
+                    app:cpb_progress="1"
+                    app:cpb_touchEnabled="false"
+                    app:cpb_clockwise="true"
+                    app:cpb_roundedCorner="false"
+                    />
+            </FrameLayout>
+
+
         </android.support.constraint.ConstraintLayout>
 
 
@@ -74,29 +108,96 @@
             app:layout_constraintTop_toBottomOf="@id/view_product_image_options_layout">
             <TextView
                 android:id="@+id/view_product_price"
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_bold"
                 android:text="PHP 200/Kg"
                 android:textColor="#FF5722"
-                android:textSize="24sp" />
+                android:textSize="16sp" />
+            <LinearLayout
+                android:id="@+id/product_auction_price_layout"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:id="@+id/product_auction_start_price_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Starting Price: "
+                        android:textSize="16sp"
+                        android:fontFamily="@font/roboto"
+                        />
+                    <TextView
+                        android:id="@+id/product_auction_start_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_bold"
+                        android:textSize="16sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/product_auction_end_price_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="End Price:        "
+                        android:textSize="16sp"
+                        android:fontFamily="@font/roboto"
+                        />
+                    <TextView
+                        android:id="@+id/product_auction_end_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_bold"
+                        android:textSize="16sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/product_auction_current_price_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Current Price:  "
+                        android:textSize="16sp"
+                        android:textColor="#000000"
+                        android:fontFamily="@font/roboto_bold"
+                        />
+                    <TextView
+                        android:id="@+id/product_auction_current_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/roboto_bold"
+                        android:textColor="#FF5722"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </LinearLayout>
             <TextView
                 android:id="@+id/view_product_product_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto"
-                android:text="Fresh Tilapia Tail"
+
                 android:textColor="#000000"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
             <TextView
                 android:id="@+id/view_product_product_selling_method"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto"
-                android:text="Placed for auction"
+                android:paddingRight="8dp"
                 android:textColor="#747474"
                 android:textStyle="italic"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -123,7 +224,7 @@
                 android:id="@+id/view_product_product_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tilapia"
+
                 android:fontFamily="@font/roboto"
                 android:textColor="#000"
                 android:textSize="16sp"/>
@@ -153,16 +254,86 @@
                 android:id="@+id/view_product_product_stock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="10Kg"
                 android:fontFamily="@font/roboto"
                 android:textColor="#000"
                 android:textSize="16sp"/>
 
         </LinearLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/view_auction_product_start_auction_time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_product_product_stock_layout"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="#ffffff">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auction Start Schedule: "
+                android:fontFamily="@font/roboto"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/auction_start_datetime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#000000"
+                android:fontFamily="@font/roboto"
+                android:textSize="16sp"/>
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/view_auction_product_end_auction_time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_auction_product_start_auction_time"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="#ffffff">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auction End Schedule: "
+                android:fontFamily="@font/roboto"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/auction_end_datetime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#000000"
+                android:fontFamily="@font/roboto"
+                android:textSize="16sp"/>
+
+
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/product_options_buttons"
             android:background="#ffffff"
             android:paddingLeft="16dp"
+            android:visibility="gone"
             android:paddingRight="16dp"
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
@@ -172,7 +343,7 @@
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view_product_product_stock_layout">
+            app:layout_constraintTop_toBottomOf="@+id/view_auction_product_end_auction_time">
             <Button
                 android:id="@+id/remove_product_button"
                 android:layout_width="0dp"

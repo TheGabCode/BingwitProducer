@@ -1,0 +1,27 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#eeeeee"
+    tools:context="gab.cdi.bingwitproducer.fragments.ViewProductsTabFragment">
+    <TextView
+        android:visibility="invisible"
+        android:id="@+id/selling_method"
+        android:textSize="20sp"
+        android:text="fixed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/view_products_refresh_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/product_placement_recyclerview"
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_margin="4dp"
+            android:layout_height="match_parent"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
+</FrameLayout>

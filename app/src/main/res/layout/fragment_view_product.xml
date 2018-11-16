@@ -41,18 +41,6 @@
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     android:background="#96000000"/>
-                <douglasspgyn.com.github.circularcountdown.CircularCountdown
-                    android:id="@+id/auction_timer"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:countdownBackgroundColor="#e0e0e0"
-                    app:countdownForegroundColor="@color/colorPrimary"
-                    app:countdownTextColor="@color/colorPrimary"
-                    app:countdownTextSize="24sp"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"/>
 
             </android.support.constraint.ConstraintLayout>
 

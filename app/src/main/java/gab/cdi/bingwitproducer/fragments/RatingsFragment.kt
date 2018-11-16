@@ -47,10 +47,9 @@ class RatingsFragment : Fragment() {
     }
 
     fun initUI(view : View){
-        Dummy().initDummyTransactionsDelivered()
         rating_recyclerview = view.findViewById(R.id.ratings_recycler_view)
         rating_recyclerview.layoutManager = LinearLayoutManager(context)
-        rating_recyclerview.adapter = RatingsAdapter(Dummy.dummy_transactions_delivered,context)
+        //rating_recyclerview.adapter = RatingsAdapter(Dummy.dummy_transactions_delivered,context)
     }
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {

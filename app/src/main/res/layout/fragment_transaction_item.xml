@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#ffffff"
+    android:elevation="6dp"
+    android:layout_margin="4dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+        <TextView
+            android:id="@+id/transaction_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="On-going"
+            android:textSize="16sp"
+            android:layout_weight="0.7"
+            android:fontFamily="@font/roboto_bold"
+            android:textColor="#FB8C00"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tracking Number"
+            android:fontFamily="@font/roboto"
+            android:textSize="12sp"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/transaction_tracking_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="f57148a9-d0ba-4721-b5af-0e51eefd5899"
+            android:fontFamily="@font/roboto_bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp"/>
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Amount"
+        android:textSize="12sp"
+        android:textColor="#000000"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+        <TextView
+            android:id="@+id/transaction_total_amout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Php 1000.00"
+            android:textColor="#FF5722"
+            android:fontFamily="@font/roboto_bold"
+            android:textSize="16sp"/>
+    </LinearLayout>
+        <TextView
+            android:id="@+id/transaction_consumer_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Joseph Gabriel D. Gonzales"
+            android:fontFamily="@font/roboto"
+            android:textColor="#000000"
+            android:textSize="16sp"/>
+        <TextView
+            android:id="@+id/transaction_consumer_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1641, J. Ongkiko St., Umboy, Bgry. Santisima, Santa Cruz, Laguna"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:fontFamily="@font/roboto"
+            android:textSize="16sp"
+            />
+
+        <TextView
+            android:id="@+id/transaction_placed_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Transaction placed on October 1, 2018"
+            android:textStyle="italic"
+            android:paddingRight="4dp"
+            android:fontFamily="@font/roboto"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp"/>
+
+
+    <TextView
+        android:id="@+id/transaction_last_updated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Transaction last updated on October 2, 2018"
+        android:textStyle="italic"
+        android:paddingRight="4dp"
+        android:fontFamily="@font/roboto"
+        android:textSize="16sp"
+        android:layout_marginBottom="16dp"/>
+    <LinearLayout
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RatingBar
+            android:id="@+id/transaction_rating"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:rating="3"
+            android:max="5"
+            android:paddingBottom="4dp"
+            android:layout_gravity="center_vertical"
+            android:foregroundGravity="right"
+            android:layout_marginBottom="4dp"/>
+        <TextView
+            android:id="@+id/transaction_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Smooth transaction"
+            android:fontFamily="@font/roboto"
+            android:textColor="#000000"
+            android:textSize="16sp"/>
+    </LinearLayout>
+</LinearLayout>
