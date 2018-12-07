@@ -25,7 +25,7 @@ abstract class BaseFragment() : Fragment(){
             mActivity.setToolbar(true)
         }else{
             mActivity.setToolbar(false)
-            mActivity.title = context?.getString(R.string.app_name)
+            mActivity.title = "Bingwit"
         }
     }
 }

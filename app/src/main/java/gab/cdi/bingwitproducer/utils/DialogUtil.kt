@@ -56,9 +56,12 @@ object DialogUtil {
 
     }
 
-    fun showErrorDialog(support_fragment_manager: FragmentManager, duration : Long, message : String){
-        val dialog = CustomAlertDialogFragment.newInstance(message,duration)
-        dialog.show(support_fragment_manager,"error_alert_dialog")
+    fun showErrorDialog(support_fragment_manager: FragmentManager, duration : Long, message : String?){
+        if(message != null){
+            val dialog = CustomAlertDialogFragment.newInstance(message,duration)
+            dialog.show(support_fragment_manager,"error_alert_dialog")
+        }
+
     }
 
 

@@ -16,12 +16,14 @@ import com.android.volley.VolleyError
 import gab.cdi.bingwit.session.Session
 
 import gab.cdi.bingwitproducer.R
+import gab.cdi.bingwitproducer.adapters.SkeletonAdapter
 import gab.cdi.bingwitproducer.adapters.TransactionAdapter
 import gab.cdi.bingwitproducer.dummy.Dummy
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
 import gab.cdi.bingwitproducer.models.Transaction
 import gab.cdi.bingwitproducer.utils.DialogUtil
+import gab.cdi.bingwitproducer.utils.SkeletonUtil
 import kotlinx.android.synthetic.main.fragment_view_transactions.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -39,21 +41,35 @@ class ViewTransactionsFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var m_transaction_status: String? = null
     private lateinit var transactions_recycler_view : RecyclerView
+
     var transactions_on_going_arraylist : ArrayList<Transaction> = ArrayList()
     var transactions_delivered_arraylist : ArrayList<Transaction> = ArrayList()
     var transactions_returned_arraylist : ArrayList<Transaction> = ArrayList()
+    var transactions_cancelled_arraylist : ArrayList<Transaction> = ArrayList()
+
+    var on_going_transaction_adapter : TransactionAdapter? = null
+    var delivered_transaction_adapter : TransactionAdapter? = null
+    var returned_transaction_adapter : TransactionAdapter? = null
+    var cancelled_transaction_adapter : TransactionAdapter? = null
+
     private var mListener: OnFragmentInteractionListener? = null
     lateinit var mSession : Session
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mSession = Session(context)
-        var bundle = this.arguments
+        val bundle = this.arguments
         m_transaction_status = bundle?.getString("transaction_status")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        transactions_skeleton_recycler_view?.adapter = SkeletonAdapter(SkeletonUtil.getSkeletonCount(context!!),context,R.layout.transaction_list_item__skeleton_layout)
+        transactions_skeleton_recycler_view?.layoutManager = LinearLayoutManager(context)
+        shimmer_layout?.startShimmerAnimation()
+
+
+
         transactions_recycler_view = view.findViewById(R.id.transactions_recycler_view)
         transactions_recycler_view.layoutManager = LinearLayoutManager(context)
         transactions_refresh_layout.setOnRefreshListener {
@@ -107,19 +123,19 @@ class ViewTransactionsFragment : Fragment() {
 
                 when(m_transaction_status){
                     "on-going" -> {
-                        val on_going_transaction_adapter = TransactionAdapter(transactions_on_going_arraylist,context)
-                        on_going_transaction_adapter.notifyDataSetChanged()
+                        on_going_transaction_adapter = TransactionAdapter(transactions_on_going_arraylist,context)
+                        on_going_transaction_adapter?.notifyDataSetChanged()
                         transactions_recycler_view.adapter = on_going_transaction_adapter
                     }
                     "delivered" -> {
                         val delivered_transaction_adapter = TransactionAdapter(transactions_delivered_arraylist,context)
-                        delivered_transaction_adapter.notifyDataSetChanged()
+                        delivered_transaction_adapter?.notifyDataSetChanged()
                         transactions_recycler_view.adapter =  delivered_transaction_adapter
 
                     }
                     "returned" -> {
                         val returned_transaction_adapter = TransactionAdapter(transactions_returned_arraylist,context)
-                        returned_transaction_adapter.notifyDataSetChanged()
+                        returned_transaction_adapter?.notifyDataSetChanged()
                         transactions_recycler_view.adapter = returned_transaction_adapter
 
                     }
@@ -155,11 +171,11 @@ class ViewTransactionsFragment : Fragment() {
                             transactions_on_going_arraylist.clear()
                             for (i in 0..json.length() - 1) {
                                 val transaction_object = json[i] as JSONObject
-                                if (transaction_object.optString("status") == "order placed" || transaction_object.optString("status") == "ready for delivery" || transaction_object.optString("status") == "shipped") {
-                                    transactions_on_going_arraylist.add(Transaction(transaction_object))
+                                if (transaction_object.optString("status") == "order placed" || transaction_object.optString("status") == "ready for delivery" || transaction_object.optString("status") == "shipped")  {
+                                 transactions_on_going_arraylist.add(Transaction(transaction_object))
                                 }
-                                val on_going_transaction_adapter = TransactionAdapter(transactions_on_going_arraylist, context)
-                                on_going_transaction_adapter.notifyDataSetChanged()
+                                on_going_transaction_adapter = TransactionAdapter(transactions_on_going_arraylist, context)
+                                on_going_transaction_adapter?.notifyDataSetChanged()
                                 transactions_recycler_view.adapter = on_going_transaction_adapter
                             }
                         }
@@ -172,8 +188,8 @@ class ViewTransactionsFragment : Fragment() {
                                     transactions_delivered_arraylist.add(Transaction(transaction_object))
                                 }
                             }
-                            val delivered_transaction_adapter = TransactionAdapter(transactions_delivered_arraylist,context)
-                            delivered_transaction_adapter.notifyDataSetChanged()
+                            delivered_transaction_adapter = TransactionAdapter(transactions_delivered_arraylist,context)
+                            delivered_transaction_adapter?.notifyDataSetChanged()
                             transactions_recycler_view.adapter =  delivered_transaction_adapter
 
                         }
@@ -186,18 +202,34 @@ class ViewTransactionsFragment : Fragment() {
                                     transactions_returned_arraylist.add(Transaction(transaction_object))
                                 }
                             }
-                            val returned_transaction_adapter = TransactionAdapter(transactions_returned_arraylist,context)
-                            returned_transaction_adapter.notifyDataSetChanged()
+                            returned_transaction_adapter = TransactionAdapter(transactions_returned_arraylist,context)
+                            returned_transaction_adapter?.notifyDataSetChanged()
                             transactions_recycler_view.adapter = returned_transaction_adapter
 
                         }
 
+                        "cancelled" -> {
+                            transactions_cancelled_arraylist.clear()
+                            for(i in 0..json.length()-1){
+                                val transaction_object = json[i] as JSONObject
+                                if(transaction_object.optString("status") == "cancelled"){
+                                    transactions_cancelled_arraylist.add(Transaction(transaction_object))
+                                }
+                            }
+                            cancelled_transaction_adapter = TransactionAdapter(transactions_cancelled_arraylist,context)
+                            cancelled_transaction_adapter?.notifyDataSetChanged()
+                            transactions_recycler_view?.adapter = cancelled_transaction_adapter
+                        }
+
                     }
 
-                transactions_recycler_view.setHasFixedSize(true)
-                if(transactions_refresh_layout.isRefreshing){
-                    transactions_refresh_layout.isRefreshing = false
+                transactions_recycler_view?.setHasFixedSize(true)
+                if(transactions_refresh_layout?.isRefreshing == true){
+                    transactions_refresh_layout?.isRefreshing = false
                 }
+                transactions_recycler_view?.visibility = View.VISIBLE
+                transactions_skeleton_recycler_view?.visibility = View.GONE
+                shimmer_layout?.stopShimmerAnimation()
             }
 
         },

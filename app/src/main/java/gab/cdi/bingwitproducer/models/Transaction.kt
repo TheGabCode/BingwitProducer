@@ -6,9 +6,8 @@ import java.io.Serializable
 /**
  * Created by Default on 09/10/2018.
  */
-data class Transaction (var jsonObject: JSONObject) : Serializable{
+class Transaction (jsonObject: JSONObject) : Serializable{
     var id : String = jsonObject.optString("id")
-    var address : String = jsonObject.optString("address","Not available")
     var status : String = jsonObject.optString("status","order placed")
     var tracking_number : String = jsonObject.optString("tracking_number","Not available")
     var total_amount : Double = jsonObject.optDouble("total_amount")

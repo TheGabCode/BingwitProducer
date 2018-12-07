@@ -1,12 +1,17 @@
 package gab.cdi.bingwitproducer.utils
 
+import android.os.AsyncTask
 import android.util.Log
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import com.google.android.gms.common.util.Strings
+import com.instacart.library.truetime.TrueTime
+import java.net.SocketTimeoutException
+
 import java.sql.Time
+import kotlin.coroutines.experimental.coroutineContext
 
 
 object TimeUtil{
@@ -35,9 +40,22 @@ object TimeUtil{
         } catch (e: ParseException) {
             e.printStackTrace()
         }
+
         return 0L
     }
 
+    fun getCurrentTimeMillis() : Long{
+        if(TrueTime.isInitialized()){
+            Log.d("woops","perfect")
+            return TrueTime.now().time
+        }
+        else{
+            Log.d("woops","error retrieving true time")
+            return System.currentTimeMillis()
+        }
+
+
+    }
 
     fun convertDateStringToLongGMT(sDate: String): Long {
         val sdf = SimpleDateFormat(ISO_DATE_FORMAT, Locale.getDefault())
@@ -95,8 +113,9 @@ object TimeUtil{
         return result
     }
 
-    fun changeDateFormatToUserFriendlyDate(ourDate : String) : String {
+    fun changeDateFormatToUserFriendlyDate(ourDate : String?) : String {
         var dateResult = ""
+        if(ourDate == null) return ""
         try {
             val formatter = SimpleDateFormat(ISO_DATE_FORMAT)
             formatter.timeZone = TimeZone.getTimeZone("UTC+8")

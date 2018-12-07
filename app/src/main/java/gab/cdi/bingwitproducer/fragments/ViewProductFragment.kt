@@ -3,6 +3,7 @@ package gab.cdi.bingwitproducer.fragments
 
 import android.content.Context
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Build.PRODUCT
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -11,6 +12,7 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import com.android.volley.VolleyError
+import com.instacart.library.truetime.TrueTime
 import gab.cdi.bingwit.session.Session
 import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.activities.MainActivity
@@ -24,6 +26,7 @@ import gab.cdi.bingwitproducer.utils.ImageUtil
 import gab.cdi.bingwitproducer.utils.TimeUtil
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_view_product_3.*
+import kotlinx.android.synthetic.main.fragment_view_product_skeleton.*
 import org.json.JSONObject
 import java.io.Serializable
 import kotlin.collections.HashMap
@@ -54,7 +57,7 @@ class ViewProductFragment : BaseFragment() {
     private lateinit var mSession : Session
 
     private var mListener: OnFragmentInteractionListener? = null
-    lateinit var timer : CountDownTimer
+    var timer : CountDownTimer? = null
     var con : Context? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +82,7 @@ class ViewProductFragment : BaseFragment() {
         mActivity.toolbar.title = setTitle()
 
 
+
     }
 
     override fun setTitle(): String {
@@ -94,6 +98,7 @@ class ViewProductFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        view_product_skeleton_shimmer_layout?.startShimmerAnimation()
         initUI()
     }
     override fun onStart() {
@@ -110,7 +115,6 @@ class ViewProductFragment : BaseFragment() {
 
     fun initUI(){
         edit_product_button.setOnClickListener {
-
             val popup : PopupMenu = PopupMenu(context,edit_product_button)
             popup.menuInflater.inflate(R.menu.product_popup_menu,popup.menu)
             popup.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
@@ -138,10 +142,14 @@ class ViewProductFragment : BaseFragment() {
             popup.show()
         }
 
-        when(product_type){
-            "fixed" -> displayProductDetails()
 
-            "auction" -> displayProductAuctionDetails()
+
+
+
+        when(product_type){
+            "fixed" -> fetchProductById()
+
+            "auction" -> fetchProductAuctionById()
         }
 
     }
@@ -151,54 +159,12 @@ class ViewProductFragment : BaseFragment() {
         product_price_per_kilogram?.visibility = View.VISIBLE
         product_price_per_kilogram?.text = "P${"%.2f".format(product?.price_per_kilo)}/kg"
         product_product_type?.text = product?.product_type
-        product_stock?.text = " • ${product?.stock}kg in stock"
+        product_stock?.text = " • ${product?.stock?.toInt()}kg in stock"
         product_price_stock?.visibility = View.VISIBLE
         product_auction_prices?.visibility = View.GONE
         product_posted_date?.text = "Posted on ${TimeUtil.changeDateFormatToUserFriendlyDate(product?.created_at!!)}"
         if(this@ViewProductFragment.view?.isAttachedToWindow == true){
             GlideApp.with(this@ViewProductFragment)?.load(product?.image_url)?.placeholder(ImageUtil.placeholder(product?.product_category!!.toUpperCase()))?.into(product_image)
-
-        }
-    }
-
-    fun displayProductAuctionDetails(){
-        product_name?.text = product_auction?.name
-        product_auction_prices?.visibility = View.VISIBLE
-        product_price_per_kilogram?.visibility = View.GONE
-        auction_schedule_layout?.visibility = View.VISIBLE
-        product_auction_max_price?.text = "P${product_auction?.max_price}"
-        product_auction_end_price?.text = "P${product_auction?.min_price}"
-        product_auction_current_price?.text ="P${product_auction?.max_price}"
-        product_product_type?.text = product_auction?.type
-        product_price_per_kilogram?.visibility = View.GONE
-        product_price_stock?.visibility = View.VISIBLE
-        product_stock?.text = product_auction?.stock.toString() + "kg for sale"
-        product_posted_date?.text = "Posted on ${TimeUtil.changeDateFormatToUserFriendlyDate(product_auction?.created_at!!)}"
-        product_start_datetime?.text = "Starts on ${TimeUtil.changeDateFormatToUserFriendlyDateUTC8(product_auction?.start!!)}"
-        product_end_datetime?.text = "Ends on ${TimeUtil.changeDateFormatToUserFriendlyDateUTC8(product_auction?.end!!)}"
-
-
-        if(TimeUtil.convertDateStringToLong(product_auction?.start!!) - System.currentTimeMillis() <= 300000){
-            edit_product_button.visibility = View.GONE
-        }
-
-        if(System.currentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.end!!) && System.currentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.start!!) ) {
-            startCountdownBidding(product_auction!!)
-        }
-        else if(System.currentTimeMillis() > TimeUtil.convertDateStringToLong(product_auction?.start!!) && System.currentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.end!!) && TimeUtil.convertDateStringToLong(product_auction?.end!!) - System.currentTimeMillis() > 600000){
-            startBidding(product_auction!!)
-            edit_product_button.visibility = View.GONE
-            setHasOptionsMenu(false)
-        }
-        else if(TimeUtil.convertDateStringToLong(product_auction?.end!!) - System.currentTimeMillis() <= 600000){
-            startCountdownTenMinutes(product_auction!!)
-        }
-        else if(System.currentTimeMillis() > TimeUtil.convertDateStringToLong(product_auction?.end!!)){
-            edit_product_button.visibility = View.GONE
-        }
-
-        if(this@ViewProductFragment.view?.isAttachedToWindow == true){
-            GlideApp.with(this@ViewProductFragment).load(product_auction?.image_url)?.placeholder(ImageUtil.placeholder(product_auction?.product_category!!.toUpperCase()))?.into(product_image)
         }
     }
 
@@ -213,28 +179,69 @@ class ViewProductFragment : BaseFragment() {
                 val json = JSONObject(response).getJSONObject("product")
                 product = ProducerProduct(json)
                 product_name?.text = product?.name
-                //product_name?.text = json.optString("name","")
                 product_price_per_kilogram?.visibility = View.VISIBLE
                 product_price_per_kilogram?.text = "P${"%.2f".format(product?.price_per_kilo)}/kg"
-//                product_price_per_kilogram?.text = "P${"%.2f".format(json.optDouble("price_per_kilo"))}/kg"
                 product_product_type?.text = product?.product_type
-//                product_product_type?.text = json.optJSONObject("product_type").optString("name")
                 product_stock?.text = " • ${json.optInt("stock")}kg in stock"
                 product_price_stock?.visibility = View.VISIBLE
                 product_auction_prices?.visibility = View.GONE
-//                product_posted_date?.text = "Posted on ${TimeUtil.changeDateFormatToUserFriendlyDate(json.optString("createdAt"))}"
                 product_posted_date?.text = "Posted on ${TimeUtil.changeDateFormatToUserFriendlyDate(product!!.created_at)}"
                 if(this@ViewProductFragment.view?.isAttachedToWindow == true){
                     GlideApp.with(this@ViewProductFragment)?.load(json?.optString("image_url"))?.placeholder(ImageUtil.placeholder(product!!.product_category.toUpperCase()))?.into(product_image)
-
                 }
-
+                view_product_nested_scrollview?.visibility = View.VISIBLE
+                skeleton_layout?.visibility = View.GONE
+                view_product_skeleton_shimmer_layout?.stopShimmerAnimation()
             }
         }, object : ApiRequest.ErrorCallback{
             override fun didURLError(error: VolleyError) {
             }
         })
     }
+
+    fun displayProductAuctionDetails(){
+        product_name?.text = product_auction?.name
+        product_auction_prices?.visibility = View.VISIBLE
+        product_price_per_kilogram?.visibility = View.GONE
+        auction_schedule_layout?.visibility = View.VISIBLE
+        product_auction_max_price?.text = "P${product_auction?.max_price?.convertToCurrencyDecimalFormat()}"
+        product_auction_end_price?.text = "P${product_auction?.min_price?.convertToCurrencyDecimalFormat()}"
+        product_auction_current_price?.text ="P${product_auction?.max_price?.convertToCurrencyDecimalFormat()}"
+        product_product_type?.text = product_auction?.type
+        product_price_per_kilogram?.visibility = View.GONE
+        product_price_stock?.visibility = View.VISIBLE
+        product_stock?.text = product_auction?.stock?.toInt().toString() + "kg for sale"
+        product_posted_date?.text = "Posted on ${TimeUtil.changeDateFormatToUserFriendlyDate(product_auction?.created_at!!)}"
+        product_start_datetime?.text = "Starts on ${TimeUtil.changeDateFormatToUserFriendlyDateUTC8(product_auction?.start!!)}"
+        product_end_datetime?.text = "Ends on ${TimeUtil.changeDateFormatToUserFriendlyDateUTC8(product_auction?.end!!)}"
+
+
+
+        if(TimeUtil.convertDateStringToLong(product_auction?.start!!) - TimeUtil.getCurrentTimeMillis() <= 300000){
+            edit_product_button.visibility = View.GONE
+        }
+
+        if(TimeUtil.getCurrentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.end!!) && TimeUtil.getCurrentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.start!!) ) {
+            startCountdownBidding(product_auction!!)
+        }
+        else if(TimeUtil.getCurrentTimeMillis() > TimeUtil.convertDateStringToLong(product_auction?.start!!) && TimeUtil.getCurrentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.end!!) && TimeUtil.convertDateStringToLong(product_auction?.end!!) - TimeUtil.getCurrentTimeMillis() > 600000){
+            startBidding(product_auction!!)
+            edit_product_button.visibility = View.GONE
+            setHasOptionsMenu(false)
+        }
+        else if(TimeUtil.convertDateStringToLong(product_auction?.end!!) - TimeUtil.getCurrentTimeMillis() <= 600000){
+            startCountdownTenMinutes(product_auction!!)
+        }
+        else if(TimeUtil.getCurrentTimeMillis() > TimeUtil.convertDateStringToLong(product_auction?.end!!)){
+            edit_product_button.visibility = View.GONE
+        }
+
+        if(this@ViewProductFragment.view?.isAttachedToWindow == true){
+            GlideApp.with(this@ViewProductFragment).load(product_auction?.image_url)?.placeholder(ImageUtil.placeholder(product_auction?.product_category!!.toUpperCase()))?.into(product_image)
+        }
+    }
+
+
 
     fun fetchProductAuctionById(){
         ApiRequest.get(context,"${API.GET_PRODUCT_AUCTION_BY_ID}/$product_id",HashMap(), HashMap(),
@@ -243,40 +250,50 @@ class ViewProductFragment : BaseFragment() {
                         Log.d("Get product auction",response)
                         val json = JSONObject(response).optJSONObject("product")
                         product_auction = ProducerAuctionProduct(json)
-                        product_name?.text = json.optJSONObject("Product").optString("name")
+
+                        product_name?.text = product_auction?.name
                         product_auction_prices?.visibility = View.VISIBLE
                         product_price_per_kilogram?.visibility = View.GONE
                         auction_schedule_layout?.visibility = View.VISIBLE
-                        product_auction_max_price?.text = "P${json.optString("max_price")}"
-                        product_auction_end_price?.text = "P${json.optString("min_price")}"
-                        product_auction_current_price?.text ="P${json.optString("max_price")}"
-                        product_product_type?.text = json.optJSONObject("Product").optJSONObject("product_type").optString("name")
+                        product_auction_max_price?.text = "P${product_auction?.max_price?.convertToCurrencyDecimalFormat()}"
+                        product_auction_end_price?.text = "P${product_auction?.min_price?.convertToCurrencyDecimalFormat()}"
+                        product_auction_current_price?.text ="P${product_auction?.max_price?.convertToCurrencyDecimalFormat()}"
+                        product_product_type?.text = product_auction?.type
                         product_price_per_kilogram?.visibility = View.GONE
                         product_price_stock?.visibility = View.VISIBLE
-                        product_stock?.text = json.optJSONObject("Product").optInt("stock").toString() + "kg for sale"
-                        product_posted_date?.text = "Posted on ${TimeUtil.changeDateFormatToUserFriendlyDate(json.optString("createdAt"))}"
-                        product_start_datetime?.text = "Starts on ${TimeUtil.changeDateFormatToUserFriendlyDateUTC8(json.optString("start"))}"
-                        product_end_datetime?.text = "Ends on ${TimeUtil.changeDateFormatToUserFriendlyDateUTC8(json.optString("end"))}"
+                        product_stock?.text = product_auction?.stock?.toInt().toString() + "kg for sale"
+                        product_posted_date?.text = "Posted on ${TimeUtil.changeDateFormatToUserFriendlyDate(product_auction?.created_at!!)}"
+                        product_start_datetime?.text = "Starts on ${TimeUtil.changeDateFormatToUserFriendlyDateUTC8(product_auction?.start!!)}"
+                        product_end_datetime?.text = "Ends on ${TimeUtil.changeDateFormatToUserFriendlyDateUTC8(product_auction?.end!!)}"
+
                         timer?.cancel()
-                        if(TimeUtil.convertDateStringToLong(product_auction?.start!!) - System.currentTimeMillis() <= 300000){
+
+                        if(TimeUtil.convertDateStringToLong(product_auction?.start!!) - TimeUtil.getCurrentTimeMillis() <= 300000){
                             edit_product_button.visibility = View.GONE
                         }
 
-
-                        if(System.currentTimeMillis() < TimeUtil.convertDateStringToLong(json.optString("end")) && System.currentTimeMillis() < TimeUtil.convertDateStringToLong(json.optString("start")) ) {
+                        if(TimeUtil.getCurrentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.end!!) && TimeUtil.getCurrentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.start!!) ) {
                             startCountdownBidding(product_auction!!)
                         }
-                        else if(System.currentTimeMillis() > TimeUtil.convertDateStringToLong(json.optString("start")) && System.currentTimeMillis() < TimeUtil.convertDateStringToLong(json.optString("end"))){
+                        else if(TimeUtil.getCurrentTimeMillis() > TimeUtil.convertDateStringToLong(product_auction?.start!!) && TimeUtil.getCurrentTimeMillis() < TimeUtil.convertDateStringToLong(product_auction?.end!!) && TimeUtil.convertDateStringToLong(product_auction?.end!!) - TimeUtil.getCurrentTimeMillis() > 600000){
                             startBidding(product_auction!!)
                             edit_product_button.visibility = View.GONE
                             setHasOptionsMenu(false)
                         }
-                        else if(System.currentTimeMillis() > TimeUtil.convertDateStringToLong(json.optString("end"))){
+                        else if(TimeUtil.convertDateStringToLong(product_auction?.end!!) - TimeUtil.getCurrentTimeMillis() <= 600000){
+                            startCountdownTenMinutes(product_auction!!)
+                        }
+                        else if(TimeUtil.getCurrentTimeMillis() > TimeUtil.convertDateStringToLong(product_auction?.end!!)){
                             edit_product_button.visibility = View.GONE
                         }
+
                         if(this@ViewProductFragment.view?.isAttachedToWindow == true){
-                            GlideApp.with(this@ViewProductFragment).load(json?.optJSONObject("Product")?.optString("image_url"))?.placeholder(ImageUtil.placeholder(product_auction!!.product_category.toUpperCase()))?.into(product_image)
+                            GlideApp.with(this@ViewProductFragment).load(product_auction?.image_url)?.placeholder(ImageUtil.placeholder(product_auction?.product_category!!.toUpperCase()))?.into(product_image)
                         }
+
+                        view_product_nested_scrollview?.visibility = View.VISIBLE
+                        skeleton_layout?.visibility = View.GONE
+                        view_product_skeleton_shimmer_layout?.stopShimmerAnimation()
                     }
                 },
                 object : ApiRequest.ErrorCallback{
@@ -306,18 +323,20 @@ class ViewProductFragment : BaseFragment() {
         remaining_time?.visibility = View.VISIBLE
         val max = (TimeUtil.convertDateStringToLong(product_auction?.end!!)) - (TimeUtil.convertDateStringToLong(product_auction?.start!!)) - 600000
         val max_min_time_diff_in_seconds = max/1000
-        val now_min_time_diff_in_seconds = (System.currentTimeMillis() - TimeUtil.convertDateStringToLong(product_auction?.start!!))/1000
+        val now_min_time_diff_in_seconds = (TimeUtil.getCurrentTimeMillis() - TimeUtil.convertDateStringToLong(product_auction?.start!!))/1000
         val range_price_diff = product_auction?.max_price.toDouble() - product_auction?.min_price.toDouble()
         val decrement = range_price_diff/max_min_time_diff_in_seconds
         var current_price = product_auction?.max_price.toDouble() - (now_min_time_diff_in_seconds*decrement)
-
-        var remaining = TimeUtil.convertDateStringToLong(product_auction?.end!!) - System.currentTimeMillis() - 600000
+        Log.d("decrement_range_price",range_price_diff.toString())
+        Log.d("decrement_range_price",max_min_time_diff_in_seconds.toString())
+        Log.d("decrement",decrement.toString())
+        var remaining = TimeUtil.convertDateStringToLong(product_auction?.end!!) - TimeUtil.getCurrentTimeMillis() - 600000
         timer = object : CountDownTimer(remaining,1000){
             override fun onFinish() {
                 if(this@ViewProductFragment.view?.isAttachedToWindow == true){
                     this.cancel()
                     remaining_time?.text = "00:00:00"
-                    product_auction_current_price?.text = "P${product_auction?.min_price}"
+                    product_auction_current_price?.text = "P${product_auction?.min_price.convertToCurrencyDecimalFormat()}"
                     remaining_time_banner?.text = "Bidding has concluded"
                     startCountdownTenMinutes(product_auction)
                 }
@@ -325,10 +344,10 @@ class ViewProductFragment : BaseFragment() {
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                remaining = TimeUtil.convertDateStringToLong(product_auction?.end!!) - System.currentTimeMillis() - 600000
+                remaining = TimeUtil.convertDateStringToLong(product_auction?.end!!) - TimeUtil.getCurrentTimeMillis() - 600000
                 remaining_time_banner?.text = "Bidding ends after"
                 remaining_time?.text = TimeUtil.hmsTimeFormatter(remaining)
-                product_auction_current_price?.text = "P${current_price.convertToCurrencyDecimalFormat()}"
+                product_auction_current_price?.text = "P${current_price.convertToCurrencyDecimalFormat().toFloat().toInt()}.00"
                 current_price -= decrement
 
             }
@@ -337,9 +356,9 @@ class ViewProductFragment : BaseFragment() {
 
     fun startCountdownBidding(product_auction : ProducerAuctionProduct){
         remaining_time?.visibility = View.VISIBLE
-        remaining_time_layout.visibility = View.VISIBLE
+        remaining_time_layout?.visibility = View.VISIBLE
         val max = (TimeUtil.convertDateStringToLong(product_auction?.start!!)) - (TimeUtil.convertDateStringToLong(product_auction?.created_at!!))
-        var remaining = (TimeUtil.convertDateStringToLong(product_auction?.start!!) - System.currentTimeMillis())
+        var remaining = (TimeUtil.convertDateStringToLong(product_auction?.start!!) - TimeUtil.getCurrentTimeMillis())
         timer = object : CountDownTimer(remaining,1000){
             override fun onFinish() {
                 if(this@ViewProductFragment.view?.isAttachedToWindow == true){
@@ -351,11 +370,11 @@ class ViewProductFragment : BaseFragment() {
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                remaining = TimeUtil.convertDateStringToLong(product_auction?.start!!) - System.currentTimeMillis()
+                remaining = TimeUtil.convertDateStringToLong(product_auction?.start!!) - TimeUtil.getCurrentTimeMillis()
                 remaining_time_banner?.text = "This product will be available to bid after"
                 remaining_time?.text = TimeUtil.hmsTimeFormatter(remaining)
-                if(TimeUtil.convertDateStringToLong(product_auction?.start!!) - System.currentTimeMillis() <= 300000){
-                    edit_product_button.visibility = View.GONE
+                if(TimeUtil.convertDateStringToLong(product_auction?.start!!) - TimeUtil.getCurrentTimeMillis() <= 300000){
+                    edit_product_button?.visibility = View.GONE
                 }
 
             }
@@ -366,15 +385,16 @@ class ViewProductFragment : BaseFragment() {
         remaining_time_layout?.visibility = View.VISIBLE
         remaining_time?.visibility = View.VISIBLE
         edit_product_button?.visibility = View.GONE
+        product_auction_current_price?.text = "P${product_auction.min_price.convertToCurrencyDecimalFormat()}"
         val max = TimeUtil.convertDateStringToLong(product_auction.end)
-        var remaining = max - System.currentTimeMillis()
+        var remaining = max - TimeUtil.getCurrentTimeMillis()
         object : CountDownTimer(remaining,1000){
             override fun onFinish() {
                 this.cancel()
             }
 
             override fun onTick(millisUntilFinished: Long) {
-                remaining = max - System.currentTimeMillis()
+                remaining = max - TimeUtil.getCurrentTimeMillis()
                 remaining_time_banner?.text = "Time remaining to sell product"
                 remaining_time?.text = TimeUtil.hmsTimeFormatter(remaining)
             }

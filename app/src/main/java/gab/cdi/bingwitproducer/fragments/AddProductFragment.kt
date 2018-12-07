@@ -41,7 +41,10 @@ import com.android.volley.VolleyError
 import com.bumptech.glide.request.RequestOptions
 import gab.cdi.bingwit.session.Session
 import gab.cdi.bingwitproducer.activities.MainActivity
+import gab.cdi.bingwitproducer.adapters.ProductCategorySpinnerAdapter
+import gab.cdi.bingwitproducer.adapters.ProductTypeSpinnerAdapter
 import gab.cdi.bingwitproducer.dependency_modules.GlideApp
+import gab.cdi.bingwitproducer.extensions.isEven
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
 import gab.cdi.bingwitproducer.models.ProducerAuctionProduct
@@ -88,34 +91,30 @@ class AddProductFragment : BaseFragment() {
     private var image_uri : Uri? = null
     private lateinit var byte_array : ByteArray
     private var upload_image_url : String = ""
-
     private var product_type_dropdown_options : ArrayList<ProductType> = ArrayList()
     private var product_category_dropdown_options : ArrayList<ProductCategory> = ArrayList()
-
+    var product_category_dropdown_options_name_string : MutableList<String> = mutableListOf()
+    var product_type_dropdown_options_name_string : MutableList<String> = mutableListOf()
     val IMAGE_CHANGE = 1
     val IMAGE_CHANGE_GALLERY = 2
     val IMAGE_CHANGE_CAMERA = 3
     val PERMISSION_READ_EXT_STORAGE = 4
     val PERMISSION_OPEN_CAMERA = 5
-
     var con : Context? = null
-
-
     val simple_date_format = SimpleDateFormat("d M yyyy HH:mm")
     val simple_date_format_string = "d M yyyy HH:mm"
     val TIME_SELECTED_START = 6
     val TIME_SELECTED_END = 7
-
     var start_year : Int? = 0
     var start_month : Int? = 0
     var start_day_of_month : Int? = 0
-
     var end_year : Int? = 0
     var end_month : Int? = 0
     var end_day_of_month : Int? = 0
-
     var start_date_string : String = ""
     var end_date_string : String = ""
+    var start_count = 1
+    var end_count = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,23 +147,21 @@ class AddProductFragment : BaseFragment() {
 
     fun initUI() {
         getProductCategories()
-
-
         add_product_product_category_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val product_category : ProductCategory = product_category_dropdown_options[position]
                 product_type_dropdown_options.clear()
+                product_type_dropdown_options_name_string.clear()
                 for(i in 0..product_category.product_types_arraylist.size-1){
                     val product_type = product_category.product_types_arraylist[i]
+                    product_type.getAliases()
                     product_type_dropdown_options.add(product_type)
+                    product_type_dropdown_options_name_string.add(product_type.name)
                 }
-                val product_types_spinner_adapter : ArrayAdapter<ProductType> = ArrayAdapter(con,android.R.layout.simple_spinner_dropdown_item,product_type_dropdown_options)
-                add_product_product_type_spinner?.adapter = product_types_spinner_adapter
-                //getProductTypesByCategoryId(product_category.id)
+                val spinner_adapter = ProductTypeSpinnerAdapter(context!!,R.layout.product_type_dropdown_item,product_type_dropdown_options_name_string,product_type_dropdown_options)
+                add_product_product_type_spinner?.adapter = spinner_adapter
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {
-
             }
         }
 
@@ -180,9 +177,8 @@ class AddProductFragment : BaseFragment() {
             dialog.setTargetFragment(this,IMAGE_CHANGE)
             dialog.show(this@AddProductFragment.activity?.supportFragmentManager,"image_picker_option")
         }
-
-
         add_product_auction_start_date_text_input.setOnClickListener {
+            start_count++
             val year = Calendar.getInstance().get(Calendar.YEAR)
             val month = Calendar.getInstance().get(Calendar.MONTH)
             val day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
@@ -192,13 +188,18 @@ class AddProductFragment : BaseFragment() {
                 start_day_of_month = dayOfMonth
                 val time_picker_dialog = TimePickerDialogFragment.newInstance(TIME_SELECTED_START,"$start_year $start_month $start_day_of_month")
                 time_picker_dialog.setTargetFragment(this@AddProductFragment,TIME_SELECTED_START)
-                time_picker_dialog.show(activity?.supportFragmentManager,"time_picker")
+                if(start_count.isEven()){
+                    time_picker_dialog.show(activity?.supportFragmentManager,"time_picker")
+                    start_count++
+                }
+
             }
             val add_product_auction_start_date_datepicker = DatePickerDialog(context,date_listener,year,month,day)
             add_product_auction_start_date_datepicker.show()
         }
 
         add_product_auction_end_date_text_input.setOnClickListener {
+            end_count++
             val year = Calendar.getInstance().get(Calendar.YEAR)
             val month = Calendar.getInstance().get(Calendar.MONTH)
             val day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
@@ -208,11 +209,14 @@ class AddProductFragment : BaseFragment() {
                 end_day_of_month = dayOfMonth
                 val time_picker_dialog = TimePickerDialogFragment.newInstance(TIME_SELECTED_END,"$end_year $end_month $end_day_of_month")
                 time_picker_dialog.setTargetFragment(this@AddProductFragment,TIME_SELECTED_END)
-                time_picker_dialog.show(activity?.supportFragmentManager,"time_picker")
+                if(end_count.isEven()){
+                    time_picker_dialog.show(activity?.supportFragmentManager,"time_picker")
+                    end_count++
+                }
+
             }
             val add_product_auction_enddate_picker = DatePickerDialog(context,date_listener,year,month,day)
             add_product_auction_enddate_picker.show()
-
         }
         add_product_submit_button.setOnClickListener {
             addProduct()
@@ -266,32 +270,6 @@ class AddProductFragment : BaseFragment() {
         add_product_auction_end_date_constraint_layout.visibility = View.VISIBLE
     }
 
-    fun getProductTypes() {
-        product_type_dropdown_options.clear()
-        val headers : HashMap<String,String> = HashMap()
-        val authorization = "Bearer ${mSession.token()}"
-
-        headers.put("Content-Type","application/x-www-form-urlencoded")
-        Log.d("token",authorization)
-        val params : HashMap<String,String> = HashMap()
-        ApiRequest.get(context,API.GET_PRODUCT_TYPES,headers, params,object : ApiRequest.URLCallback{
-            override fun didURLResponse(response: String) {
-                Log.d("Get product types",response)
-                val json = JSONObject(response)
-                val product_types : JSONArray = json.getJSONObject("product_type").getJSONArray("rows")
-                for(i in 0..(product_types.length() - 1)){
-                    val product_type_object = product_types.getJSONObject(i)
-                    product_type_dropdown_options.add(ProductType(product_type_object))
-                }
-                val product_types_spinner_adapter : ArrayAdapter<ProductType> = ArrayAdapter(con,android.R.layout.simple_spinner_dropdown_item,product_type_dropdown_options)
-                add_product_product_type_spinner?.adapter = product_types_spinner_adapter
-            }
-        }, object : ApiRequest.ErrorCallback{
-            override fun didURLError(error: VolleyError) {
-
-            }
-        })
-    }
 
     fun onButtonPressed(uri: Uri) {
         if (mListener != null) {
@@ -309,7 +287,6 @@ class AddProductFragment : BaseFragment() {
             DialogUtil.showErrorDialog(activity!!.supportFragmentManager,1500,"Please provide your product's available stock")
             return
         }
-
         val headers : HashMap<String,String> = HashMap()
         val authorization = "Bearer ${mSession.token()}"
         headers.put("Content-Type","application/x-www-form-urlencoded")
@@ -317,7 +294,7 @@ class AddProductFragment : BaseFragment() {
         val params : HashMap<String,String> = HashMap()
         params.put("name",add_product_product_name_text.text.toString().trim())
         params.put("stock",add_product_product_weight.text.toString().trim())
-        val selected_product_type = add_product_product_type_spinner.selectedItem as ProductType
+        val selected_product_type = product_type_dropdown_options[add_product_product_type_spinner.selectedItemPosition]
         params.put("product_type_id",selected_product_type.id) //dummy muna
         if(upload_image_url != ""){
             params.put("image_url",upload_image_url)
@@ -339,14 +316,8 @@ class AddProductFragment : BaseFragment() {
                 ApiRequest.post(context, "${API.ADD_PRODUCT}/products",headers,params,message,object : ApiRequest.URLCallback{
                     override fun didURLResponse(response: String) {
                         Log.d("Add product",response)
-                        val json = JSONObject(response)
-                        val id : String = json.optJSONObject("product").optString("id")
-                        mActivity.fm.popBackStackImmediate()
                         mActivity.fab.show()
-                        var mFragment = fragmentManager?.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductsFragment
-                        mFragment.mPosition = 0
-                        mFragment.initUI()
-                        //mActivity.fragmentAddBackStack(ViewProductFragment.newInstance(ProducerProduct(json),"fixed"),"view_product_fragment")
+                        mActivity.fm.popBackStackImmediate()
                     }
                 },
                 object : ApiRequest.ErrorCallback{
@@ -388,14 +359,9 @@ class AddProductFragment : BaseFragment() {
                 ApiRequest.post(context, "${API.ADD_PRODUCT}products/auctions",headers,params,message,object : ApiRequest.URLCallback{
                     override fun didURLResponse(response: String) {
                         Log.d("Add product",response)
-                        val json = JSONObject(response)
-                        val id : String = json.optJSONObject("product_auction").optString("id")
                         val mActivity = activity as MainActivity
-                        mActivity.fm.popBackStackImmediate()
                         mActivity.fab.show()
-                        var mFragment = fragmentManager?.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductsFragment
-                        mFragment.mPosition = 1
-                        mFragment.initUI()
+                        mActivity.fm.popBackStackImmediate()
                     }
                 },
                         object : ApiRequest.ErrorCallback{
@@ -448,8 +414,6 @@ class AddProductFragment : BaseFragment() {
                     val date_string = "${start_day_of_month} ${start_month} ${start_year} ${hour_min_string}"
                     val date_string_result = simple_date_format.parse(date_string)
                     add_product_auction_start_date_date = date_string_result
-
-                    //Toast.makeText(context,add_product_auction_start_date_date.toString(),Toast.LENGTH_SHORT).show()
                     if(add_product_auction_end_date_date != null){
                         val date_diff = add_product_auction_start_date_date!!.compareTo(add_product_auction_end_date_date)
                         val current_date_time = Calendar.getInstance().time
@@ -462,7 +426,6 @@ class AddProductFragment : BaseFragment() {
                             else{
                                 Toast.makeText(context,"Start time must be at least 15 minutes after time posted.",Toast.LENGTH_SHORT).show()
                             }
-                            //add_product_auction_start_date_text_input.setText("${start_year}-${start_month}-${start_day_of_month} $hour_min_string")
                             isStartAuctionDatePickerShown = false
                         }
                         else if(date_diff > 0 || date_diff == 0){
@@ -479,8 +442,6 @@ class AddProductFragment : BaseFragment() {
                         }
                         else{
 //                            add_product_auction_start_date_text_input.setText("${start_year}-${start_month}-${start_day_of_month} $hour_min_string")
-                            Log.d("time_current",System.currentTimeMillis().toString())
-                            Log.d("time_current_start",add_product_auction_start_date_date!!.time.toString())
                             if(add_product_auction_start_date_date!!.time - System.currentTimeMillis() >= 900000){
                                 start_date_string = "${start_year}-${start_month}-${start_day_of_month} $hour_min_string"
                                 add_product_auction_start_date_text_input.setText(TimeUtil.changeDateFormat(date_string,simple_date_format_string))
@@ -493,6 +454,7 @@ class AddProductFragment : BaseFragment() {
                         }
                     }
                 }
+                isStartAuctionDatePickerShown = false
             }
 
             TIME_SELECTED_END -> {
@@ -631,6 +593,7 @@ class AddProductFragment : BaseFragment() {
                     override fun didURLResponse(response: String) {
                         Log.d("categories",response)
                         product_category_dropdown_options.clear()
+                        product_category_dropdown_options_name_string.clear()
                         val json = JSONObject(response)
                         val product_category_json_array : JSONArray = json.optJSONObject("category").optJSONArray("rows")
                         for(i in 0..product_category_json_array.length()-1){
@@ -642,9 +605,17 @@ class AddProductFragment : BaseFragment() {
                                 this_product_category.product_types_arraylist.add(ProductType(this_product_type))
                             }
                             product_category_dropdown_options.add(this_product_category)
+                            product_category_dropdown_options_name_string.add(this_product_category.name)
                         }
-                        val product_categories_spinner_adapter : ArrayAdapter<ProductCategory> = ArrayAdapter(con,android.R.layout.simple_spinner_dropdown_item,product_category_dropdown_options)
-                        add_product_product_category_spinner?.adapter = product_categories_spinner_adapter
+
+
+                        if(this@AddProductFragment.view?.isAttachedToWindow == true){
+                            Log.d("HERE_PLS","here_pls")
+                            val spinner_adapter = ProductCategorySpinnerAdapter(context!!,R.layout.product_category_dropdown_item, product_category_dropdown_options_name_string,product_category_dropdown_options)
+                            add_product_product_category_spinner?.adapter = spinner_adapter
+
+                        }
+
                     }
                 },
                 object : ApiRequest.ErrorCallback{

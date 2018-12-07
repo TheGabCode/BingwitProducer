@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#ffffff">
-    <android.support.constraint.ConstraintLayout
+    <io.supercharge.shimmerlayout.ShimmerLayout
+        android:id="@+id/view_product_skeleton_shimmer_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="16dp">
+        app:shimmer_angle="0"
+        app:shimmer_animation_duration="1500"
+        app:shimmer_color="@color/shimmer_color_bingwit"
+        app:shimmer_mask_width="0.2">
+        <include layout="@layout/fragment_view_product_skeleton"
+            android:id="@+id/skeleton_layout"/>
+    </io.supercharge.shimmerlayout.ShimmerLayout>
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/view_product_nested_scrollview"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp">
         <ImageView
             android:id="@+id/product_image"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:text="This product will be available to bid after"
                 android:textColor="#ffffff"
-                android:textSize="12sp"
+                android:textSize="16sp"
                 android:textAlignment="center"
                 android:gravity="center_vertical"
                 android:layout_marginBottom="8dp"
@@ -51,7 +67,6 @@
                 android:gravity="center_vertical"
                 />
         </LinearLayout>
-
         <LinearLayout
             android:id="@+id/product_info_details"
             app:layout_constraintTop_toBottomOf="@id/product_image"
@@ -99,8 +114,6 @@
                     android:layout_gravity="center_vertical"
                     />
             </LinearLayout>
-
-
             <LinearLayout
                 android:id="@+id/product_price_stock"
                 android:visibility="gone"
@@ -124,7 +137,6 @@
                     android:fontFamily="@font/roboto"
                     android:textColor="#9e9e9e"/>
             </LinearLayout>
-
             <LinearLayout
                 android:id="@+id/product_auction_prices"
                 android:visibility="gone"
@@ -156,7 +168,7 @@
                         android:layout_height="wrap_content"
                         android:text="Max Price"
                         android:textSize="12sp"/>
-            </LinearLayout>
+                </LinearLayout>
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -202,7 +214,6 @@
                         android:textSize="12sp"/>
                 </LinearLayout>
             </LinearLayout>
-
             <TextView
                 android:id="@+id/product_posted_date"
                 android:layout_width="wrap_content"
@@ -226,7 +237,6 @@
                     android:textColor="#bdbdbd"
                     android:fontFamily="@font/roboto"
                     android:textSize="14sp"/>
-
                 <TextView
                     android:id="@+id/product_end_datetime"
                     android:layout_width="wrap_content"
@@ -236,8 +246,7 @@
                     android:fontFamily="@font/roboto"
                     android:textSize="14sp"/>
             </LinearLayout>
-
         </LinearLayout>
-
     </android.support.constraint.ConstraintLayout>
 </android.support.v4.widget.NestedScrollView>
+</FrameLayout>

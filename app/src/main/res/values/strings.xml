@@ -1,12 +1,12 @@
 <resources>
     <string name="app_name">BingwitProducer</string>
-    <string name="username_hint">Username</string>
+    <string name="username_hint">Username/Phone No.</string>
     <string name="password_hint">Password</string>
     <string name="no_account_yet">No account yet?</string>
     <string name="sign_up">sign up</string>
     <string name="sign_in">sign in</string>
     <string name="full_name">Full Name</string>
-    <string name="address">Address</string>
+    <string name="address">House No., Street</string>
     <string name="phone_number">Phone Number</string>
     <string name="confirm_password_hint">Confirm Password</string>
     <string name="title_activity_main">MainActivity</string>
@@ -60,6 +60,15 @@
     <string name="area">Area</string>
     <string name="are_you_sure_you_want_to_set_this_transaction_s_status_to_">Are you sure you want to set this transaction\'s status to</string>
     <string name="are_you_sure_you_want_to_change_this_transaction_s_status_to_status_you_will_no_longer_be_able_to_revert_this_previous_states">Are you sure you want to change this transaction\'s status to _status_? You will no longer be able to revert this to previous states.</string>
+    <string name="province">Province</string>
+    <string name="town">Town</string>
+    <string name="baranggay">Barangay</string>
+    <string name="auction_cancelled">Auction Cancelled</string>
+    <string name="full_name_colon">Full Name:</string>
+    <string name="address_colon">Address:</string>
+    <string name="phone_number_colon">Phone Number:</string>
+    <string name="area_colon">Area:</string>
+    <string name="producer">Producer</string>
     <string-array name="transaction_statuses">
         <item>Order placed</item>
         <item>Ready for delivery</item>

@@ -1,191 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_marginStart="4dp"
-    android:layout_marginEnd="4dp">
-   <android.support.v7.widget.CardView
-       app:layout_constraintStart_toStartOf="parent"
-       app:layout_constraintEnd_toEndOf="parent"
-       app:layout_constraintTop_toTopOf="parent"
-       app:layout_constraintBottom_toBottomOf="parent"
-       app:cardUseCompatPadding="true"
-       app:cardPreventCornerOverlap="true"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content">
-       <android.support.constraint.ConstraintLayout
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:padding="16dp">
-           <TextView
-               android:id="@+id/transaction_tracking_number"
-               android:layout_width="0dp"
-               app:layout_constraintWidth_percent="0.5"
-               android:layout_height="wrap_content"
-               android:text="s98g4dsfsf"
-               android:maxLines="1"
-               android:singleLine="true"
-               android:scrollHorizontally="true"
-               android:fontFamily="@font/roboto_bold"
-               android:textSize="16sp"
-               android:textColor="@color/gray_700"
-               app:layout_constraintStart_toStartOf="parent"
-               app:layout_constraintTop_toTopOf="parent"/>
-           <TextView
-               android:id="@+id/tracking_no_label"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="Tracking no."
-               android:textSize="12sp"
-               android:textColor="@color/gray_500"
-               android:fontFamily="@font/roboto"
-               app:layout_constraintTop_toBottomOf="@id/transaction_tracking_number"
-               app:layout_constraintStart_toStartOf="parent"/>
+    tools:layout_editor_absoluteX="4dp"
+    tools:layout_editor_absoluteY="81dp">
 
-           <TextView
-               android:id="@+id/transaction_status"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="status"
-               android:fontFamily="@font/roboto_bold"
-               android:textAllCaps="true"
-               android:textColor="@color/gray_500"
-               app:layout_constraintTop_toBottomOf="@id/tracking_no_label"
-               app:layout_constraintBottom_toBottomOf="parent"
-               app:layout_constraintStart_toStartOf="parent"
-               android:layout_marginTop="16dp"/>
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true">
 
-           <TextView
-               android:id="@+id/transaction_total_amount"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:textSize="16sp"
-               android:fontFamily="@font/roboto_bold"
-               android:textColor="@color/gray_700"
-               android:text="P1000.00"
-               app:layout_constraintEnd_toEndOf="parent"
-               app:layout_constraintTop_toTopOf="parent"/>
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
 
-           <TextView
-               android:id="@+id/transaction_total_amount_label"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="Total Amount"
-               android:textColor="@color/gray_500"
-               android:textSize="12sp"
-               android:fontFamily="@font/roboto"
-               app:layout_constraintEnd_toEndOf="parent"
-               app:layout_constraintTop_toBottomOf="@id/transaction_total_amount"/>
+            <TextView
+                android:id="@+id/transaction_tracking_number"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_bold"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:text="s98g4dsfsf"
+                android:textColor="@color/gray_900"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.5" />
 
-           <TextView
-               android:id="@+id/transaction_last_updated"
-               app:layout_constraintTop_toBottomOf="@+id/transaction_status"
-               android:layout_width="wrap_content"
-               android:layout_height="17dp"
-               android:text="Last updated"
-               android:textColor="@color/gray_500"
-               android:textSize="12sp"
-               app:layout_constraintStart_toStartOf="parent"
-               app:layout_constraintBottom_toBottomOf="parent"
-               tools:layout_editor_absoluteX="16dp" />
-       </android.support.constraint.ConstraintLayout>
-       <!--<LinearLayout-->
-           <!--android:layout_width="match_parent"-->
-           <!--android:layout_height="wrap_content"-->
-           <!--android:orientation="vertical"-->
-           <!--android:padding="16dp">-->
-           <!--<LinearLayout-->
-               <!--android:layout_width="match_parent"-->
-               <!--android:layout_height="wrap_content"-->
-               <!--android:orientation="horizontal"-->
-               <!--android:weightSum="1">-->
-               <!--<LinearLayout-->
-                   <!--android:layout_weight="0.5"-->
-                   <!--android:layout_width="wrap_content"-->
-                   <!--android:layout_height="wrap_content"-->
-                   <!--android:orientation="vertical">-->
-                   <!--<TextView-->
-                       <!--android:id="@+id/transaction_tracking_number"-->
-                       <!--android:layout_width="wrap_content"-->
-                       <!--android:layout_height="wrap_content"-->
-                       <!--android:text="tracking number"-->
-                       <!--android:textColor="@color/gray_700"-->
-                       <!--android:fontFamily="@font/roboto_bold"-->
-                       <!--android:textSize="16sp"/>-->
-                   <!--<TextView-->
-                       <!--android:layout_width="wrap_content"-->
-                       <!--android:layout_height="wrap_content"-->
-                       <!--android:text="tracking number"-->
-                       <!--android:textColor="@color/gray_500"-->
-                       <!--android:fontFamily="@font/roboto"-->
-                       <!--android:textSize="12sp"/>-->
-               <!--</LinearLayout>-->
-               <!--<LinearLayout-->
-                   <!--android:layout_weight="0.5"-->
-                   <!--android:layout_width="wrap_content"-->
-                   <!--android:layout_height="wrap_content"-->
-                   <!--android:orientation="vertical">-->
-                   <!--<TextView-->
-                       <!--android:id="@+id/transaction_total_amount"-->
-                       <!--android:layout_gravity="end"-->
-                       <!--android:layout_width="wrap_content"-->
-                       <!--android:layout_height="wrap_content"-->
-                       <!--android:text="P1,000.00"-->
-                       <!--android:textColor="@color/gray_700"-->
-                       <!--android:fontFamily="@font/roboto_bold"-->
-                       <!--android:textSize="16sp"/>-->
-                   <!--<TextView-->
-                       <!--android:layout_gravity="end"-->
-                       <!--android:layout_width="wrap_content"-->
-                       <!--android:layout_height="wrap_content"-->
-                       <!--android:text="total amount"-->
-                       <!--android:textColor="@color/gray_500"-->
-                       <!--android:fontFamily="@font/roboto"-->
-                       <!--android:textSize="12sp"/>-->
-               <!--</LinearLayout>-->
-           <!--</LinearLayout>-->
-           <!--<LinearLayout-->
-               <!--android:layout_width="match_parent"-->
-               <!--android:layout_height="wrap_content"-->
-               <!--android:orientation="horizontal"-->
-               <!--android:weightSum="1"-->
-               <!--android:layout_marginTop="16dp">-->
-               <!--<LinearLayout-->
-                   <!--android:layout_weight="0.5"-->
-                   <!--android:layout_width="wrap_content"-->
-                   <!--android:layout_height="wrap_content"-->
-                   <!--android:orientation="vertical">-->
-                   <!--<TextView-->
-                       <!--android:id="@+id/transaction_status"-->
-                       <!--android:layout_width="wrap_content"-->
-                       <!--android:layout_height="wrap_content"-->
-                       <!--android:text="SHIPPED"-->
-                       <!--android:textColor="@color/gray_500"-->
-                       <!--android:fontFamily="@font/roboto_bold"-->
-                       <!--android:textSize="16sp"/>-->
-               <!--</LinearLayout>-->
-               <!--<LinearLayout-->
-                   <!--android:layout_weight="0.5"-->
-                   <!--android:layout_width="wrap_content"-->
-                   <!--android:layout_height="wrap_content"-->
-                   <!--android:orientation="vertical">-->
-                   <!--<TextView-->
-                       <!--android:id="@+id/transaction_last_updated"-->
-                       <!--android:layout_gravity="end"-->
-                       <!--android:layout_width="wrap_content"-->
-                       <!--android:layout_height="wrap_content"-->
-                       <!--android:text="Last updated on"-->
-                       <!--android:textColor="@color/gray_500"-->
-                       <!--android:fontFamily="@font/roboto"-->
-                       <!--android:textSize="12sp"/>-->
+            <TextView
+                android:id="@+id/tracking_no_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="Tracking no."
+                android:textColor="@color/gray_500"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/transaction_tracking_number" />
+            <TextView
+                android:id="@+id/transaction_consumer_name"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:text="Consumer Name"
+                android:textColor="@color/gray_700"
+                android:textSize="16sp"
+                android:fontFamily="@font/roboto_bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="Customer Name"
+                android:textColor="@color/gray_500"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/transaction_consumer_name"/>
+            <TextView
+                android:id="@+id/transaction_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/roboto_bold"
+                android:text="status"
+                android:textAllCaps="true"
+                android:textColor="@color/gray_500"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tracking_no_label" />
 
-               <!--</LinearLayout>-->
-           <!--</LinearLayout>-->
-       <!--</LinearLayout>-->
+            <TextView
+                android:id="@+id/transaction_total_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto_bold"
+                android:text="P1000.00"
+                android:textColor="@color/gray_700"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@+id/transaction_total_amount_label"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/transaction_total_amount_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/roboto"
+                android:text="Total Amount"
+                android:textColor="@color/gray_500"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <TextView
+                android:id="@+id/transaction_last_updated"
+                android:layout_width="wrap_content"
+                android:layout_height="17dp"
+                android:text="Last updated"
+                android:textColor="@color/colorPrimary"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/transaction_status"
+                tools:layout_editor_absoluteX="16dp" />
+        </android.support.constraint.ConstraintLayout>
+        <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical"-->
+        <!--android:padding="16dp">-->
+        <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:weightSum="1">-->
+        <!--<LinearLayout-->
+        <!--android:layout_weight="0.5"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical">-->
+        <!--<TextView-->
+        <!--android:id="@+id/transaction_tracking_number"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="tracking number"-->
+        <!--android:textColor="@color/gray_700"-->
+        <!--android:fontFamily="@font/roboto_bold"-->
+        <!--android:textSize="16sp"/>-->
+        <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="tracking number"-->
+        <!--android:textColor="@color/gray_500"-->
+        <!--android:fontFamily="@font/roboto"-->
+        <!--android:textSize="12sp"/>-->
+        <!--</LinearLayout>-->
+        <!--<LinearLayout-->
+        <!--android:layout_weight="0.5"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical">-->
+        <!--<TextView-->
+        <!--android:id="@+id/transaction_total_amount"-->
+        <!--android:layout_gravity="end"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="P1,000.00"-->
+        <!--android:textColor="@color/gray_700"-->
+        <!--android:fontFamily="@font/roboto_bold"-->
+        <!--android:textSize="16sp"/>-->
+        <!--<TextView-->
+        <!--android:layout_gravity="end"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="total amount"-->
+        <!--android:textColor="@color/gray_500"-->
+        <!--android:fontFamily="@font/roboto"-->
+        <!--android:textSize="12sp"/>-->
+        <!--</LinearLayout>-->
+        <!--</LinearLayout>-->
+        <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:weightSum="1"-->
+        <!--android:layout_marginTop="16dp">-->
+        <!--<LinearLayout-->
+        <!--android:layout_weight="0.5"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical">-->
+        <!--<TextView-->
+        <!--android:id="@+id/transaction_status"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="SHIPPED"-->
+        <!--android:textColor="@color/gray_500"-->
+        <!--android:fontFamily="@font/roboto_bold"-->
+        <!--android:textSize="16sp"/>-->
+        <!--</LinearLayout>-->
+        <!--<LinearLayout-->
+        <!--android:layout_weight="0.5"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical">-->
+        <!--<TextView-->
+        <!--android:id="@+id/transaction_last_updated"-->
+        <!--android:layout_gravity="end"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Last updated on"-->
+        <!--android:textColor="@color/gray_500"-->
+        <!--android:fontFamily="@font/roboto"-->
+        <!--android:textSize="12sp"/>-->
+
+        <!--</LinearLayout>-->
+        <!--</LinearLayout>-->
+        <!--</LinearLayout>-->
 
 
-   </android.support.v7.widget.CardView>
+    </android.support.v7.widget.CardView>
 </android.support.constraint.ConstraintLayout>

@@ -3,8 +3,10 @@ package gab.cdi.bingwitproducer.fragments
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Bundle
 import android.provider.Telephony.BaseMmsColumns.TRANSACTION_ID
 import android.support.v4.app.Fragment
@@ -17,17 +19,25 @@ import android.view.*
 import android.widget.SeekBar
 import android.widget.Toast
 import com.android.volley.VolleyError
+import com.shuhart.stepview.StepView
 import gab.cdi.bingwit.session.Session
 
 import gab.cdi.bingwitproducer.R
+import gab.cdi.bingwitproducer.R.id.*
+import gab.cdi.bingwitproducer.activities.MainActivity
+import gab.cdi.bingwitproducer.adapters.StatusLogAdapter
 import gab.cdi.bingwitproducer.adapters.TransactionProductAdapter
 import gab.cdi.bingwitproducer.extensions.convertToCurrencyDecimalFormat
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
+import gab.cdi.bingwitproducer.models.StatusLog
 import gab.cdi.bingwitproducer.models.Transaction
 import gab.cdi.bingwitproducer.models.TransactionProduct
+import gab.cdi.bingwitproducer.utils.DialogUtil
 import gab.cdi.bingwitproducer.utils.TimeUtil
-import kotlinx.android.synthetic.main.fragment_view_transaction.*
+
+import kotlinx.android.synthetic.main.fragment_view_transaction_2.*
+import kotlinx.android.synthetic.main.fragment_view_transaction_2.view.*
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -51,16 +61,17 @@ class ViewTransactionFragment : BaseFragment() {
 
     private var transaction_status_text_arraylist : ArrayList<String> = arrayListOf("order placed","ready for delivery","shipped","delivered","returned upon delivery")
 
+    private var isTransactionStatusLogsVisible = false
     private var transaction_products_arraylist : ArrayList<TransactionProduct> = ArrayList()
     val CHANGE_TRANSACTION_STATUS = 1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mSession = Session(context)
         if (arguments != null) {
-            mPosition = arguments!!.getInt(POSITION)
             transaction_id = arguments!!.getString(TRANSACTION_ID)
-            transaction = arguments!!.getSerializable(TRANSACTION) as Transaction
         }
+
+        view_transaction_skeleton_shimmer_layout?.startShimmerAnimation()
     }
 
     override fun setTitle(): String {
@@ -69,7 +80,7 @@ class ViewTransactionFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_view_transaction, container, false)
+        val view = inflater.inflate(R.layout.fragment_view_transaction_2, container, false)
         return view
     }
 
@@ -100,7 +111,33 @@ class ViewTransactionFragment : BaseFragment() {
     }
 
     fun initUI(view : View) {
-        displayTransactionDetails()
+        step_view.setSteps(mutableListOf("Order placed","Ready for delivery","Shipped","Delivered"))
+        step_view.setOnStepClickListener(object : StepView.OnStepClickListener{
+            override fun onStepClick(step: Int) {
+                val step_difference = step - step_view.currentStep
+                if(step > step_view.currentStep && step_difference <= 1){
+                    val dialog = ConfirmTransactionStatusDialogFragment.newInstance(transaction_status_text_arraylist[step])
+                    dialog.setTargetFragment(this@ViewTransactionFragment,CHANGE_TRANSACTION_STATUS)
+                    dialog.show(activity?.supportFragmentManager,"confirm_status_change")
+                }
+            }
+        })
+
+
+        transaction_status_logs_see_more.setOnClickListener{
+            if(!isTransactionStatusLogsVisible) {
+                status_logs_recycler_view?.visibility = View.VISIBLE
+                isTransactionStatusLogsVisible = true
+                transaction_status_logs_see_more?.text = "See less"
+            }
+            else{
+                status_logs_recycler_view?.visibility = View.GONE
+                isTransactionStatusLogsVisible = false
+                transaction_status_logs_see_more?.text = "See more"
+            }
+
+        }
+        fetchTransactionById()
     }
 
     fun setTransactionStage(stage : Int){
@@ -115,6 +152,7 @@ class ViewTransactionFragment : BaseFragment() {
 
         val params : HashMap<String,String> = HashMap()
         params.put("status",transaction_status_text_arraylist[stage])
+        Log.d("params",params.toString())
         ApiRequest.put(context,"${API.UPDATE_TRANSACTION_STAGE}/${transaction.id}",message,headers,params,
                 object : ApiRequest.URLCallback{
                     override fun didURLResponse(response: String) {
@@ -124,56 +162,46 @@ class ViewTransactionFragment : BaseFragment() {
                 },
                 object : ApiRequest.ErrorCallback{
                     override fun didURLError(error: VolleyError) {
-
+                        var mActivity = context as MainActivity
+                        DialogUtil.showVolleyErrorDialog(mActivity.supportFragmentManager,error)
                     }
                 })
     }
     fun displayTransactionDetails(){
-        transaction_recipient_name?.text = "${transaction.consumer_name}"
-        transaction_order_number?.text = "Tracking # ${transaction.tracking_number}"
-        transaction_order_date?.text = "Order placed on ${TimeUtil.changeDateFormatToUserFriendlyDate(transaction.createdAt)}"
-        transaction_shipping_address?.text = "${transaction.address} "
-        transaction_total?.text = "Php${transaction.total_amount.convertToCurrencyDecimalFormat()}"
-        transaction_subtotal?.text = "Php ${transaction.total_amount.convertToCurrencyDecimalFormat()}"
-        if(!TextUtils.isEmpty(transaction.comment)){
-            consumer_additional_notes_layout.visibility = View.VISIBLE
-            consumer_additional_notes?.text = "${transaction.comment}"
-        }
-
-        seekbar?.progress = transaction_status_text_arraylist.indexOf(transaction.status)
-        if(transaction.status == "delivered"){
-            setHasOptionsMenu(true)
-        }
-        else if(transaction.status == "returned upon delivery"){
-            if(context != null) fetchTransactionProducts()
-            isReturned()
-            return
-        }
-        seekbar?.visibility = View.VISIBLE
-        transaction_status_texts?.visibility = View.VISIBLE
-        current_progress = seekbar?.progress
-        seekbar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                if(seekBar!!.progress <= current_progress!!){
-                    seekbar?.progress = current_progress!!
-                }
-                else{
-                    val dialog = ConfirmTransactionStatusDialogFragment.newInstance(transaction_status_text_arraylist[seekBar!!.progress])
-                    dialog.setTargetFragment(this@ViewTransactionFragment,CHANGE_TRANSACTION_STATUS)
-                    dialog.show(activity?.supportFragmentManager,"confirm_status_change")
-                }
-            }
-        })
-        if(context != null){
+        if(context != null) {
             fetchTransactionProducts()
         }
+
+        transaction_recipient_name?.text = "${transaction.consumer_name}"
+        if(transaction.tracking_number != "null")  transaction_order_number?.text = "${transaction.tracking_number}"
+        else transaction_order_number.text = "Tracking # not available"
+        //transaction_shipping_address?.text = "${transaction.address} "
+        transaction_total?.text = "P${transaction.total_amount.convertToCurrencyDecimalFormat()}"
+        transaction_subtotal?.text = "P${transaction.total_amount.convertToCurrencyDecimalFormat()}"
+        if( transaction.comment != "null" && transaction.comment.trim() != ""){
+            consumer_additional_notes_layout?.visibility = View.VISIBLE
+            consumer_additional_notes?.text = "${transaction.comment} "
+        }
+
+        if(transaction.status == "returned upon delivery" || transaction.status == "cancelled"){
+            step_view_failed?.visibility = View.VISIBLE
+            step_view?.visibility = View.GONE
+            if(transaction?.status == "returned upon delivery") step_view_failed?.setSteps(mutableListOf("Order placed","Ready for delivery","Shipped","Returned upon delivery"))
+            if(transaction?.status == "cancelled") step_view_failed?.setSteps(mutableListOf("Order placed", "Cancelled"))
+            step_view_failed?.go(step_view_failed.stepCount-1,true)
+            step_view_failed?.done(true)
+            isReturned()
+        }
+        else{
+            step_view?.visibility = View.VISIBLE
+            step_view?.go(transaction_status_text_arraylist.indexOf(transaction.status),true)
+            if(this@ViewTransactionFragment.view?.isAttachedToWindow == true){
+                if(transaction_status_text_arraylist.indexOf(transaction.status) == (step_view.stepCount)-1) step_view?.done(true)
+                if(transaction?.status == "shipped") setHasOptionsMenu(true)
+            }
+
+        }
+
     }
 
     fun fetchTransactionById(){
@@ -189,48 +217,25 @@ class ViewTransactionFragment : BaseFragment() {
                     override fun didURLResponse(response: String) {
                         Log.d("Transaction",response)
                         val json = JSONObject(response).optJSONObject("transaction")
+                        transaction = Transaction(json)
+                        displayTransactionDetails()
+
+
 //                        transaction_recipient_name?.text = "Sold to ${json.optJSONObject("consumer").optString("full_name")}"
-                        transaction_order_number?.text = "Tracking # ${json.optString("tracking_number")}"
-                        val created_at_tokens = json.optString("createdAt").split("T")
-                        val created_at_time_tokens = created_at_tokens[1].split(":")
-                        transaction_order_date?.text = "Order placed on ${TimeUtil.changeDateFormatToUserFriendlyDate(json.optString("createdAt"))}"
-                        transaction_shipping_address?.text = json.optString("address")+" "
-                        transaction_total?.text = "Php ${json.optDouble("total_amount").convertToCurrencyDecimalFormat()}"
-                        transaction_subtotal?.text = "Php ${json.optDouble("total_amount").convertToCurrencyDecimalFormat()}"
-                        seekbar?.progress = transaction_status_text_arraylist.indexOf(json.optString("status"))
-                        if(json.optString("status") == "delivered"){
-                            setHasOptionsMenu(true)
-                        }
-                        else if(json.optString("status") == "returned upon delivery"){
-                            if(context != null) fetchTransactionProducts()
-                            isReturned()
-                            return
-                        }
-                        seekbar?.visibility = View.VISIBLE
-                        transaction_status_texts?.visibility = View.VISIBLE
-                        current_progress = seekbar?.progress
-                        seekbar?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-                            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                            }
-
-                            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-                            }
-
-                            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                                if(seekBar!!.progress <= current_progress!!){
-                                    seekbar?.progress = current_progress!!
-                                }
-                                else{
-                                    val dialog = ConfirmTransactionStatusDialogFragment.newInstance(transaction_status_text_arraylist[seekBar!!.progress])
-                                    dialog.setTargetFragment(this@ViewTransactionFragment,CHANGE_TRANSACTION_STATUS)
-                                    dialog.show(activity?.supportFragmentManager,"confirm_status_change")
-                                }
-                            }
-                        })
-                        if(context != null){
-                            fetchTransactionProducts()
-                        }
+//                        if(json.optString("tracking_number") != null) transaction_order_number?.text = "Tracking # ${json.optString("tracking_number","NA")}"
+//
+//                        transaction_shipping_address?.text = json.optString("address")+" "
+//                        if(json.optString("status") == "delivered"){
+//                            setHasOptionsMenu(true)
+//                        }
+//                        else if(json.optString("status") == "returned upon delivery"){
+//                            if(context != null) fetchTransactionProducts()
+//                            isReturned()
+//                            return
+//                        }
+//                        if(context != null){
+//                            fetchTransactionProducts()
+//                        }
 
                     }
                 },
@@ -253,6 +258,7 @@ class ViewTransactionFragment : BaseFragment() {
                     override fun didURLResponse(response: String) {
                         Log.d("t_products",response)
                         val json = JSONObject(response).optJSONObject("transaction_products")
+                        val status_logs_json = JSONObject(response).optJSONObject("status_log").optJSONArray("rows")
                         var subtotal_amount : Double = 0.0
                         val t_products : JSONArray = json.optJSONArray("rows")
                         for(i in 0..t_products.length()-1){
@@ -260,11 +266,22 @@ class ViewTransactionFragment : BaseFragment() {
                             transaction_products_arraylist.add(TransactionProduct(t_product))
                             subtotal_amount += t_product.optDouble("amount")
                         }
-                        transaction_total?.text = "P${subtotal_amount.convertToCurrencyDecimalFormat()}"
-                        transaction_subtotal?.text = "P${subtotal_amount.convertToCurrencyDecimalFormat()}"
 
                         transaction_products_recyclerview?.adapter = TransactionProductAdapter(transaction_products_arraylist,context)
                         transaction_products_recyclerview?.layoutManager = LinearLayoutManager(context)
+
+
+                        val status_logs_array_list : ArrayList<StatusLog> = ArrayList()
+                        for(i in 0..status_logs_json.length()-1){
+                            val status_log = status_logs_json[i] as JSONObject
+                            status_logs_array_list.add(StatusLog(status_log))
+                        }
+                        status_logs_recycler_view?.adapter = StatusLogAdapter(status_logs_array_list,this@ViewTransactionFragment.context)
+                        status_logs_recycler_view?.layoutManager = LinearLayoutManager(context)
+                        view_transaction_nestedscrollview?.visibility = View.VISIBLE
+                        skeleton_layout?.visibility = View.GONE
+                        view_transaction_skeleton_shimmer_layout?.visibility = View.GONE
+                        view_transaction_skeleton_shimmer_layout?.stopShimmerAnimation()
                     }
                 },
                 object : ApiRequest.ErrorCallback{
@@ -272,29 +289,10 @@ class ViewTransactionFragment : BaseFragment() {
 
                     }
                 })
-
     }
 
     fun isReturned(){
-        transaction_status_delivered_text?.text = "Returned upon delivery"
-        setHasOptionsMenu(false)
-        seekbar?.visibility = View.GONE
-        transaction_status_texts?.visibility = View.GONE
-        seekbar_returned?.visibility = View.VISIBLE
-        seekbar_returned?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                seekbar_returned?.progress = 2
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                seekbar_returned?.progress = 2
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                seekbar_returned?.progress = 2
-            }
-        })
-        transaction_status_returned_texts?.visibility = View.VISIBLE
+          setHasOptionsMenu(false)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -303,17 +301,15 @@ class ViewTransactionFragment : BaseFragment() {
                 if(resultCode == Activity.RESULT_OK){
                     if(data != null){
                       if(data.getIntExtra("change_status",0) == 1){
-                          Log.d("status",data.getStringExtra("transaction_status_string"))
                           if(data.getStringExtra("transaction_status_string") == "returned upon delivery"){
-                              seekbar.thumb = ResourcesCompat.getDrawable(resources,R.drawable.transaction_status_seekbar_thumb_red,null)
                               isReturned()
-//                              return_transaction_button_container.visibility = View.GONE
                           }
-
+                          else if(data.getStringExtra("transaction_status_string") == "shipped"){
+                              setHasOptionsMenu(true)
+                          }
                           setTransactionStage(transaction_status_text_arraylist.indexOf(data.getStringExtra("transaction_status_string")))
-                      }
-                        else{
-                          seekbar.progress = current_progress!!
+                          step_view.go(transaction_status_text_arraylist.indexOf(data.getStringExtra("transaction_status_string")),true)
+                          if(transaction_status_text_arraylist.indexOf(data.getStringExtra("transaction_status_string")) == step_view.stepCount - 1) step_view.done(true)
                       }
                     }
                 }
@@ -368,6 +364,13 @@ class ViewTransactionFragment : BaseFragment() {
             val fragment = ViewTransactionFragment()
             val args = Bundle()
             args.putInt(POSITION, tab_position!!)
+            args.putString(TRANSACTION_ID, transaction_id!!)
+            fragment.arguments = args
+            return fragment
+        }
+        fun newInstance(transaction_id : String?): ViewTransactionFragment {
+            val fragment = ViewTransactionFragment()
+            val args = Bundle()
             args.putString(TRANSACTION_ID, transaction_id!!)
             fragment.arguments = args
             return fragment

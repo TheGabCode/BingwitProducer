@@ -69,6 +69,20 @@
                     android:textAlignment="center"
                     android:textColor="#fff"
                     android:fontFamily="@font/roboto_bold"/>
+                <TextView
+                    android:id="@+id/auction_cancelled_indicator"
+                    android:visibility="invisible"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/red"
+                    android:text="@string/auction_cancelled"
+                    android:textAlignment="center"
+                    android:gravity="center_vertical"
+                    android:fontFamily="@font/roboto_light"
+                    android:textColor="@color/md_white"
+                    />
             </FrameLayout>
             <LinearLayout
                 android:id="@+id/product_info_details"

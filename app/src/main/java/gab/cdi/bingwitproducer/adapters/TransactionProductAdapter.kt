@@ -11,8 +11,10 @@ import gab.cdi.bingwitproducer.models.TransactionProduct
 import android.content.Context
 import android.support.constraint.ConstraintLayout
 import android.widget.ImageView
+import android.widget.LinearLayout
 import gab.cdi.bingwitproducer.dependency_modules.GlideApp
 import gab.cdi.bingwitproducer.extensions.convertToCurrencyDecimalFormat
+import gab.cdi.bingwitproducer.utils.ImageUtil
 
 /**
  * Created by Default on 30/10/2018.
@@ -50,10 +52,11 @@ class TransactionProductAdapter(val transaction_products : ArrayList<Transaction
         }
         else{
             holder.transaction_product_comment.text = this_transaction_product.comment
+            holder.transaction_product_rating_details.visibility = View.VISIBLE
         }
 
         if(context != null){
-            GlideApp.with(context).load(this_transaction_product.transaction_product_image_url).placeholder(R.drawable.ic_bingwit_logo).into(holder.transaction_product_image)
+            GlideApp.with(context).load(this_transaction_product.transaction_product_image_url).placeholder(ImageUtil.placeholder(this_transaction_product.transaction_category_name.toUpperCase())).into(holder.transaction_product_image)
         }
 
         if(this_transaction_product.is_cancelled){
@@ -69,5 +72,6 @@ class TransactionProductAdapter(val transaction_products : ArrayList<Transaction
         val transaction_product_comment : TextView = view.findViewById(R.id.transaction_product_comment)
         val transaction_product_image : ImageView = view.findViewById(R.id.transaction_product_image)
         val transaction_product_cancelled_cover : ConstraintLayout = view.findViewById(R.id.transaction_product_cancelled_cover)
+        val transaction_product_rating_details : LinearLayout = view.findViewById(R.id.transaction_product_rating_details)
     }
 }

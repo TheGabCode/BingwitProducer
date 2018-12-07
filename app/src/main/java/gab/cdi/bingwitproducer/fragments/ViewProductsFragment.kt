@@ -7,25 +7,20 @@ import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.app.FragmentStatePagerAdapter
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.android.volley.VolleyError
+import com.instacart.library.truetime.TrueTime
 import gab.cdi.bingwit.session.Session
 
 import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.activities.MainActivity
-import gab.cdi.bingwitproducer.https.API
-import gab.cdi.bingwitproducer.https.ApiRequest
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.fragment_view_products.*
-import kotlinx.android.synthetic.main.fragment_view_products.view.*
-import kotlinx.android.synthetic.main.fragment_view_products_tab.*
 
 /**
  * A simple [Fragment] subclass.
@@ -43,6 +38,11 @@ class ViewProductsFragment : Fragment() {
 
     private lateinit var mSession : Session
     lateinit var mActivity : MainActivity
+
+    lateinit var m_sections_pager_adapter : SectionsPagerAdapter
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
@@ -50,13 +50,14 @@ class ViewProductsFragment : Fragment() {
         }
         mSession = Session(context)
         mActivity = context as MainActivity
+        if(!TrueTime.isInitialized()) mActivity.instantiateTrueTime(3)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         val view =  inflater.inflate(R.layout.fragment_view_products, container, false)
-        activity?.toolbar?.title = "Dashboard"
+        activity?.toolbar?.title = "Products"
         mActivity.setToolbar(false)
         return view
     }
@@ -67,12 +68,13 @@ class ViewProductsFragment : Fragment() {
      }
 
     fun initUI(){
-        val m_sections_pager_adapter = SectionsPagerAdapter(fragmentManager)
+        m_sections_pager_adapter = SectionsPagerAdapter(childFragmentManager)
         products_view_pager.adapter = m_sections_pager_adapter
         products_view_pager.addOnPageChangeListener(object : TabLayout.TabLayoutOnPageChangeListener(producer_products_tabs){})
         producer_products_tabs.addOnTabSelectedListener(object : TabLayout.ViewPagerOnTabSelectedListener(products_view_pager){})
+        products_view_pager.currentItem = mPosition!!
 
-        products_view_pager.setCurrentItem(mPosition!!)
+
     }
 
 
@@ -95,9 +97,13 @@ class ViewProductsFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
+        m_sections_pager_adapter.view_products_hashmap.clear()
         mListener = null
     }
 
+    fun getInnerFragment(key : String) : ViewProductsTabFragment{
+        return m_sections_pager_adapter?.view_products_hashmap[key] as ViewProductsTabFragment
+    }
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -138,21 +144,30 @@ class ViewProductsFragment : Fragment() {
         }
     }
 
-    inner class SectionsPagerAdapter(fm: FragmentManager?) : FragmentStatePagerAdapter(fm) {
+    inner class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(fm) {
+        var view_products_hashmap : HashMap<String,Fragment> = HashMap()
         override fun getItem(position: Int): Fragment? {
             var fragment : Fragment? = null
             if(position == 0){
                 fragment = ViewProductsTabFragment.newInstance("fixed")
+                view_products_hashmap["fixed"] = fragment
                 Log.d("Method","fixed")
                 return fragment
             }
             else if(position == 1){
                 fragment = ViewProductsTabFragment.newInstance("auction")
                 Log.d("Method","auction")
+                view_products_hashmap["auction"] = fragment
                 return fragment
             }
             return null
         }
+
+        fun getItemFragment(position: Int){
+
+        }
+
+
 
         override fun getCount(): Int {
             // Show 4 total pages.

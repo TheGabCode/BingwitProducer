@@ -15,15 +15,15 @@ object ImageUtil {
     fun placeholder(product_category_name : String) : Int{
         when(product_category_name.toUpperCase()){
 
-            product_category_names.FISH -> return R.drawable.ic_fish
+            product_category_names.FISH -> return R.drawable.ic_fish_group
 
             product_category_names.MICROPHYTES -> return R.drawable.ic_seaweeds
 
-            product_category_names.MOLLUSCS -> return R.drawable.ic_shell
+            product_category_names.MOLLUSCS -> return R.drawable.ic_molluscs_group
 
             product_category_names.OTHER_AQUATIC_ANIMALS -> return R.drawable.ic_others
 
-            product_category_names.CRUSTACEANS -> return R.drawable.ic_shellfish
+            product_category_names.CRUSTACEANS -> return R.drawable.ic_crustaceans_group
 
             else -> return R.drawable.ic_others
         }

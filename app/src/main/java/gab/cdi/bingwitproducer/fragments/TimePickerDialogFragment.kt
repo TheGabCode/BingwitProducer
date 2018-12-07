@@ -2,6 +2,7 @@ package gab.cdi.bingwitproducer.fragments
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
@@ -13,6 +14,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.DatePicker
 import android.widget.NumberPicker
 import android.widget.TimePicker
@@ -145,6 +147,12 @@ class TimePickerDialogFragment : DialogFragment() {
         initUI(view)
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState)
+        dialog.window?.requestFeature(Window.FEATURE_NO_TITLE)
+        return dialog
+    }
+
     fun initUI(view : View) {
         when(time_start_end_code){
             6 -> time_picker_title.text = "Start Time"
@@ -152,6 +160,7 @@ class TimePickerDialogFragment : DialogFragment() {
         }
 
         time_picker = view.findViewById(R.id.add_product_auction_time_picker)
+
         time_picker_confirm.setOnClickListener {
             val intent = Intent()
             intent.putExtra("hour_minute","${hour}:${min}")

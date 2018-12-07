@@ -108,11 +108,9 @@ class RemoveProductDialogFragment : DialogFragment() {
                 val mActivity = activity as MainActivity
                 mActivity.fm.popBackStackImmediate()
                 mActivity.fab.show()
-                val mFragment = mActivity.supportFragmentManager.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductsFragment
-                mFragment.mPosition = 0
-                mFragment.initUI()
-//                mActivity.fragmentReplaceBackStack(ViewProductsFragment.newInstance(0),"remove_product")
-//                mActivity.displaySelectedId(R.id.nav_view_products, hashMapOf("tab_position" to 0))
+//                val mFragment = mActivity.supportFragmentManager.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductsFragment
+//                mFragment.mPosition = 0
+//                mFragment.initUI()
                 this@RemoveProductDialogFragment.dismiss()
             }
         },
@@ -140,9 +138,9 @@ class RemoveProductDialogFragment : DialogFragment() {
                 val mActivity = activity as MainActivity
                 mActivity.fm.popBackStackImmediate()
                 mActivity.fab.show()
-                val mFragment = mActivity.supportFragmentManager.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductsFragment
-                mFragment.mPosition = 1
-                mFragment.initUI()
+//                val mFragment = mActivity.supportFragmentManager.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductsFragment
+//                mFragment.mPosition = 1
+//                mFragment.initUI()
                 //mActivity.displaySelectedId(R.id.nav_view_products, hashMapOf("tab_position" to 1))
                // mActivity.fragmentReplaceBackStack(ViewProductsFragment.newInstance(1),"remove_auction_product")
                 this@RemoveProductDialogFragment.dismiss()

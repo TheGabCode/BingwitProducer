@@ -20,6 +20,7 @@ class Session {
     var USER_ID = "USER_ID"
     var USER_DATA = "USER_DATA"
     var USER_VERIFIED = "USER_VERIFIED"
+    var FIREBASE_TOKEN = "FIREBASE_TOKEN"
 
 
     constructor(context: Context?) {
@@ -60,6 +61,19 @@ class Session {
 
     fun token() : String? {
         return sharedPrefs?.getString(TOKEN,"")
+    }
+
+    fun storeFirebaseToken(firebase_token : String?){
+        try {
+            sharedPrefsEditor?.putString(FIREBASE_TOKEN,firebase_token)?.apply()
+        }
+        catch (e : JSONException){
+            e.printStackTrace()
+        }
+    }
+
+    fun firebaseToken() : String? {
+        return sharedPrefs?.getString(FIREBASE_TOKEN,"")
     }
 
     fun id() : String? {

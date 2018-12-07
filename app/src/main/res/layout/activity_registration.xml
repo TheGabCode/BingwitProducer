@@ -37,7 +37,7 @@
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="16dp"
+        android:paddingTop="32dp"
         android:paddingStart="32dp"
         android:paddingEnd="32dp"
 
@@ -79,6 +79,54 @@
                     android:backgroundTint="@color/colorPrimaryDark"/>
             </android.support.design.widget.TextInputLayout>
             <LinearLayout
+                android:id="@+id/registration_province_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/province"
+                    />
+                <Spinner
+                    android:id="@+id/registration_province_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/registration_town_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/town"
+                    />
+                <Spinner
+                    android:id="@+id/registration_town_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/registration_brgy_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/baranggay"
+                    />
+                <Spinner
+                    android:id="@+id/registration_brgy_spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <LinearLayout
                 android:id="@+id/registration_area_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -92,7 +140,8 @@
                 <Spinner
                     android:id="@+id/registration_area_spinner"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    />
             </LinearLayout>
             <android.support.design.widget.TextInputLayout
                 android:layout_marginBottom="16dp"

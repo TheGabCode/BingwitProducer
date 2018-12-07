@@ -32,6 +32,7 @@ import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.activities.MainActivity
 import gab.cdi.bingwitproducer.dependency_modules.GlideApp
 import gab.cdi.bingwitproducer.extensions.convertToCurrencyDecimalFormat
+import gab.cdi.bingwitproducer.extensions.isEven
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
 import gab.cdi.bingwitproducer.utils.DialogUtil
@@ -59,44 +60,35 @@ class EditProductFragment : Fragment() {
     var product_id : String? = null
     var product_type : String? = null
     private lateinit var mSession : Session
-
     private lateinit var product_json_object : JSONObject
-
     private var mListener: OnFragmentInteractionListener? = null
-
     var edit_product_auction_start_date_date : Date? = null
-
     var edit_product_auction_end_date_date : Date? = null
-
     private lateinit var photo_file : File
     private lateinit var current_file_path : String
     private var image_uri : Uri? = null
     private lateinit var byte_array : ByteArray
     private var upload_image_url : String? = null
-
     val IMAGE_CHANGE = 1
     val IMAGE_CHANGE_GALLERY = 2
     val IMAGE_CHANGE_CAMERA = 3
     val PERMISSION_READ_EXT_STORAGE = 4
     val PERMISSION_OPEN_CAMERA = 5
-
     @SuppressLint("SimpleDateFormat")
     val simple_date_format = SimpleDateFormat("d M yyyy HH:mm")
     val simple_date_format_string = "d M yyyy HH:mm"
-
     val TIME_SELECTED_START = 6
     val TIME_SELECTED_END = 7
-
     var start_year : Int? = 0
     var start_month : Int? = 0
     var start_day_of_month : Int? = 0
-
     var end_year : Int? = 0
     var end_month : Int? = 0
     var end_day_of_month : Int? = 0
-
     var start_date_string : String = ""
     var end_date_string : String = ""
+    var start_count = 1
+    var end_count = 1
 
 
 
@@ -193,6 +185,7 @@ class EditProductFragment : Fragment() {
 
 
             edit_product_auction_start_date_text_input.setOnClickListener {
+                start_count++
                 val year = Calendar.getInstance().get(Calendar.YEAR)
                 val month = Calendar.getInstance().get(Calendar.MONTH)
                 val day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
@@ -202,13 +195,18 @@ class EditProductFragment : Fragment() {
                     start_day_of_month = dayOfMonth
                     val time_picker_dialog = TimePickerDialogFragment.newInstance(TIME_SELECTED_START,"$start_year $start_month $start_day_of_month")
                     time_picker_dialog.setTargetFragment(this@EditProductFragment,TIME_SELECTED_START)
-                    time_picker_dialog.show(activity?.supportFragmentManager,"time_picker")
+                    if(start_count.isEven()){
+                        time_picker_dialog.show(activity?.supportFragmentManager,"time_picker")
+                        start_count++
+                    }
+
                 }
                 val edit_product_auction_start_date_datepicker = DatePickerDialog(context,date_listener,year,month,day)
                 edit_product_auction_start_date_datepicker.show()
         }
 
         edit_product_auction_end_date_text_input.setOnClickListener {
+            end_count++
             val year = Calendar.getInstance().get(Calendar.YEAR)
             val month = Calendar.getInstance().get(Calendar.MONTH)
             val day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
@@ -218,7 +216,11 @@ class EditProductFragment : Fragment() {
                 end_day_of_month = dayOfMonth
                 val time_picker_dialog = TimePickerDialogFragment.newInstance(TIME_SELECTED_END,"$end_year $end_month $end_day_of_month")
                 time_picker_dialog.setTargetFragment(this@EditProductFragment,TIME_SELECTED_END)
-                time_picker_dialog.show(activity?.supportFragmentManager,"time_picker")
+                if(end_count.isEven()){
+                    time_picker_dialog.show(activity?.supportFragmentManager,"time_picker")
+                    end_count++
+                }
+
             }
             val edit_product_auction_enddate_picker = DatePickerDialog(context,date_listener,year,month,day)
             edit_product_auction_enddate_picker.show()
@@ -483,7 +485,7 @@ class EditProductFragment : Fragment() {
                     override fun didURLResponse(response: String) {
                         Log.d("Get product auction",response)
                         product_json_object = JSONObject(response).optJSONObject("product")
-                        edit_product_product_name?.setText(product_json_object.optJSONObject("Product").optString("name"))
+                        edit_product_product_name?.setText(product_json_object.optJSONObject("product").optString("name"))
                         edit_product_selling_method?.check(R.id.edit_product_radio_button_auction)
                         edit_product_product_min_price?.setText(product_json_object.optString("min_price").toDouble().convertToCurrencyDecimalFormat())
                         edit_product_product_max_price?.setText(product_json_object.optString("max_price").toDouble().convertToCurrencyDecimalFormat())
@@ -494,7 +496,7 @@ class EditProductFragment : Fragment() {
                         val start_date_time_tokens = start_date_tokens[1].split(":")
                         val start_date_formatted = "${start_date_tokens[0]} ${start_date_time_tokens[0].toInt()}:${start_date_time_tokens[1]}"
                         start_date_string = start_date_formatted
-                        Toast.makeText(context,start_date_formatted,Toast.LENGTH_SHORT).show()
+                       // Toast.makeText(context,start_date_formatted,Toast.LENGTH_SHORT).show()
                         val start_date_dispay_to_format = "${start_date_date_tokens[2]} ${start_date_date_tokens[1]} ${start_date_date_tokens[0]} ${start_date_time_tokens[0]}:${start_date_time_tokens[1]}"
                         edit_product_auction_start_date_text_input?.setText(TimeUtil.changeDateFormat(start_date_dispay_to_format,simple_date_format_string))
                         edit_product_auction_start_date_date = simple_date_format.parse("${start_date_date_tokens[2]} ${start_date_date_tokens[1]} ${start_date_date_tokens[0]} ${start_date_time_tokens[0]}:${start_date_time_tokens[1]}")
@@ -510,13 +512,13 @@ class EditProductFragment : Fragment() {
 
                         edit_product_auction_end_date_date = simple_date_format.parse("${end_date_date_tokens[2]} ${end_date_date_tokens[1]} ${end_date_date_tokens[0]} ${end_date_time_tokens[0]}:${end_date_time_tokens[1]}")
                         if(this@EditProductFragment.view?.isAttachedToWindow == true){
-                            GlideApp.with(this@EditProductFragment).load(product_json_object.optJSONObject("Product").optString("image_url")).into(edit_product_image)
+                            GlideApp.with(this@EditProductFragment).load(product_json_object.optJSONObject("product").optString("image_url")).into(edit_product_image)
                         }
 
-                        upload_image_url = product_json_object.optJSONObject("Product").optString("image_url")
+                        upload_image_url = product_json_object.optJSONObject("product").optString("image_url")
                         Log.d("image_url",upload_image_url)
-                        edit_product_product_type?.text = product_json_object.optJSONObject("Product").optJSONObject("product_type").optString("name")
-                        edit_product_product_weight?.setText(product_json_object.optJSONObject("Product").optInt("stock").toString())
+                        edit_product_product_type?.text = product_json_object.optJSONObject("product").optJSONObject("product_type").optString("name")
+                        edit_product_product_weight?.setText(product_json_object.optJSONObject("product").optInt("stock").toString())
 
 
                     }
@@ -611,10 +613,6 @@ class EditProductFragment : Fragment() {
                             val auction_id = json.optJSONObject("auction_product").optString("id")
                             val mActivity = activity as MainActivity
                             mActivity.fm.popBackStackImmediate()
-
-                            //mActivity.fm.popBackStackImmediate()
-                            //mActivity.fragmentAddBackStack(ViewProductFragment.newInstance(product_id!!,"auction"),"view_product_fragment")
-                            //mActivity.displaySelectedId(R.id.nav_view_product, hashMapOf("product_id" to auction_id, "product_type" to "auction"))
                         }
                     },
                     object : ApiRequest.ErrorCallback{
@@ -653,13 +651,10 @@ class EditProductFragment : Fragment() {
 
             params.put("end",end_date_string+":00")
             params.put("start",start_date_string+":00")
-
-            params.put("stock",product_json_object.optJSONObject("Product").optInt("stock").toString())
-            params.put("product_type_id",product_json_object.optJSONObject("Product").optJSONObject("product_type").optString("id"))
+            params.put("stock",product_json_object.optJSONObject("product").optInt("stock").toString())
+            params.put("product_type_id",product_json_object.optJSONObject("product").optJSONObject("product_type").optString("id"))
             params.put("min_price",edit_product_product_min_price.text.toString())
             params.put("max_price",edit_product_product_max_price.text.toString())
-//            params.put("start",edit_product_auction_start_date_text_input.text.toString()+":00")
-//            params.put("end",edit_product_auction_end_date_text_input.text.toString()+":00")
             Log.d("Date",params.toString())
             ApiRequest.put(context,"${API.UPDATE_PRODUCT_AUCTION}/$product_id",message,header,params,
                     object : ApiRequest.URLCallback{
@@ -671,10 +666,6 @@ class EditProductFragment : Fragment() {
                             mActivity.fm.popBackStackImmediate()
                             val mFragment = mActivity.supportFragmentManager.findFragmentById(R.id.bingwit_navigation_activity) as ViewProductFragment
                             mFragment.fetchProductAuctionById()
-                            //mActivity.fm.popBackStackImmediate()
-                            //mActivity.fragmentAddBackStack(ViewProductFragment.newInstance(product_id,"auction"),"view_product_fragment")
-                            //mActivity.displaySelectedId(R.id.nav_view_product, hashMapOf("product_id" to product_id, "product_type" to "auction"))
-
                         }
                     },
                     object : ApiRequest.ErrorCallback{

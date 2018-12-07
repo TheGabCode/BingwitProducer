@@ -39,9 +39,11 @@ class TransactionAdapter(val transactions : ArrayList<Transaction>, val context 
         val this_transaction = transactions[position]
 
         holder.transaction_status.text = this_transaction.status.toUpperCase()
-        holder.transaction_tracking_number.text = this_transaction.tracking_number
+        if(this_transaction.tracking_number != "null") holder.transaction_tracking_number.text = this_transaction.tracking_number
+        else holder.transaction_tracking_number.text = "Tracking # not available"
         holder.transaction_total_amount.text = "P${this_transaction.total_amount.convertToCurrencyDecimalFormat()}"
         holder.transaction_last_updated.text = "Last updated ${TimeUtil.changeDateFormatToUserFriendlyDate(this_transaction.updatedAt)}"
+        holder.transaction_consumer_name.text = this_transaction.consumer_name
 //        holder.transaction_rating.rating = this_transaction.rating.toFloat()
 //        if(this_transaction.tracking_number != null){
 //            holder.transaction_tracking_number.text = this_transaction.tracking_number
@@ -63,7 +65,7 @@ class TransactionAdapter(val transactions : ArrayList<Transaction>, val context 
 //            val mActivity = context as MainActivity
 //            mActivity.displaySelectedId(R.id.nav_view_transaction, hashMapOf("position" to 0,"transaction_id" to this_transaction.id))
             val mActivity = context as MainActivity
-            mActivity.fragmentAddBackStack(ViewTransactionFragment.newInstance(this_transaction),"view_transaction")
+            mActivity.fragmentAddBackStack(ViewTransactionFragment.newInstance(this_transaction.id),"view_transaction")
         }
 
 
@@ -74,14 +76,6 @@ class TransactionAdapter(val transactions : ArrayList<Transaction>, val context 
         val transaction_total_amount : TextView = view.findViewById(R.id.transaction_total_amount)
         val transaction_status : TextView = view.findViewById(R.id.transaction_status)
         val transaction_last_updated : TextView = view.findViewById(R.id.transaction_last_updated)
-//        val transaction_status : TextView = view.findViewById(R.id.transaction_status)
-//        val transaction_rating : RatingBar = view.findViewById(R.id.transaction_rating)
-//        val transaction_tracking_number : TextView = view.findViewById(R.id.transaction_tracking_number)
-//        val transaction_total_amount : TextView = view.findViewById(R.id.transaction_total_amout)
-//        val transaction_consumer_name : TextView = view.findViewById(R.id.transaction_consumer_name)
-//        val transaction_consumer_address : TextView = view.findViewById(R.id.transaction_consumer_address)
-//        val transaction_placed_on : TextView = view.findViewById(R.id.transaction_placed_on)
-//        val transaction_last_updated : TextView = view.findViewById(R.id.transaction_last_updated)
-//        val transaction_comment : TextView = view.findViewById(R.id.transaction_comment)
+        val transaction_consumer_name : TextView = view.findViewById(R.id.transaction_consumer_name)
     }
 }

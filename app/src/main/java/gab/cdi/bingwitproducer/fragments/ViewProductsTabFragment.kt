@@ -5,21 +5,25 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.android.volley.VolleyError
+
 import gab.cdi.bingwit.session.Session
 
 import gab.cdi.bingwitproducer.R
 import gab.cdi.bingwitproducer.adapters.ProducerAuctionProductAdapter
 import gab.cdi.bingwitproducer.adapters.ProducerProductAdapter
+import gab.cdi.bingwitproducer.adapters.SkeletonAdapter
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
 import gab.cdi.bingwitproducer.models.ProducerAuctionProduct
 import gab.cdi.bingwitproducer.models.ProducerProduct
 import gab.cdi.bingwitproducer.utils.DialogUtil
+import gab.cdi.bingwitproducer.utils.SkeletonUtil
 import gab.cdi.bingwitproducer.utils.TimeUtil
 import kotlinx.android.synthetic.main.fragment_view_products_tab.*
 import org.json.JSONArray
@@ -36,13 +40,19 @@ import org.json.JSONObject
 class ViewProductsTabFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
-    private var m_product_selling_method: String? = null
+    var m_product_selling_method: String? = null
 
     private var mListener: OnFragmentInteractionListener? = null
     private lateinit var mSession : Session
 
-    private var fixed_products_array_list : ArrayList<ProducerProduct> = ArrayList()
-    private var auction_products_array_list : ArrayList<ProducerAuctionProduct> = ArrayList()
+    var fixed_products_array_list : ArrayList<ProducerProduct> = ArrayList()
+    var auction_products_array_list : ArrayList<ProducerAuctionProduct> = ArrayList()
+
+    lateinit var product_placement_recyclerview : RecyclerView
+
+    var fixed_products_adapter : ProducerProductAdapter? = null
+    var auction_products_adapter : ProducerAuctionProductAdapter? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +60,16 @@ class ViewProductsTabFragment : Fragment() {
             m_product_selling_method = arguments!!.getString(PRODUCT_SELLING_METHOD)
         }
         mSession = Session(context)
+//        when(m_product_selling_method){
+//            "fixed" -> fixed_products_adapter = ProducerProductAdapter(fixed_products_array_list,context,m_product_selling_method!!)
+//            "auction" ->  auction_products_adapter = ProducerAuctionProductAdapter(auction_products_array_list,context,m_product_selling_method!!)
+//        }
+
+
+        //
     }
+
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -66,15 +85,17 @@ class ViewProductsTabFragment : Fragment() {
         }
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        product_placement_recyclerview = view.findViewById(R.id.product_placement_recyclerview)
+        skeleton_recyclerview?.adapter = SkeletonAdapter(SkeletonUtil.getSkeletonCount(context!!),context,R.layout.product_list_item_skeleton_layout)
+        skeleton_recyclerview?.layoutManager = LinearLayoutManager(context)
+        shimmer_layout?.startShimmerAnimation()
         initUI()
     }
 
-    fun refreshList(){
-        fetchProducerProducts()
-        fetchAuctionProducerProducts()
-    }
+
 
     fun initUI(){
         when(m_product_selling_method){
@@ -91,7 +112,6 @@ class ViewProductsTabFragment : Fragment() {
                 "auction" -> fetchAuctionProducerProducts()
             }
         }
-        Log.d("Method",m_product_selling_method)
         product_placement_recyclerview.layoutManager = LinearLayoutManager(context)
     }
 
@@ -101,7 +121,6 @@ class ViewProductsTabFragment : Fragment() {
 
         headers.put("Authorization",authorization)
         Log.d("Products","fixed")
-        val message = "Fetching products"
 
         ApiRequest.get(context, "${API.GET_PRODUCTS}/${mSession.id()}/products",headers, HashMap(),object : ApiRequest.URLCallback{
             override fun didURLResponse(response: String) {
@@ -113,10 +132,13 @@ class ViewProductsTabFragment : Fragment() {
                     val product_object : JSONObject = products.get(i) as JSONObject
                     fixed_products_array_list.add(ProducerProduct(product_object))
                 }
-                product_placement_recyclerview.adapter = ProducerProductAdapter(fixed_products_array_list,context,m_product_selling_method!!)
+                fixed_products_adapter?.notifyDataSetChanged()
+                fixed_products_adapter = ProducerProductAdapter(fixed_products_array_list,context,m_product_selling_method!!)
+                product_placement_recyclerview.adapter = fixed_products_adapter
                 if(view_products_refresh_layout.isRefreshing){
                     view_products_refresh_layout.isRefreshing = false
                 }
+                skeleton_recyclerview?.visibility = View.GONE
             }
         },
                 object : ApiRequest.ErrorCallback{
@@ -132,13 +154,11 @@ class ViewProductsTabFragment : Fragment() {
 
         headers.put("Authorization",authorization)
 
-        val message = "Fetching products"
-
         Log.d("Products","auction")
         ApiRequest.get(context, "${API.GET_PRODUCTS}/${mSession.id()}/products/auctions",headers, HashMap(),object : ApiRequest.URLCallback{
             override fun didURLResponse(response: String) {
                 auction_products_array_list.clear()
-                Log.d("Fetch auction products",response)
+                Log.d("Tag",response)
                 val json = JSONObject(response)
                 val products = json.optJSONObject("product").optJSONArray("rows")
                 for (i in 0..products.length()-1){
@@ -149,10 +169,14 @@ class ViewProductsTabFragment : Fragment() {
                     }
 
                 }
-                product_placement_recyclerview.adapter = ProducerAuctionProductAdapter(auction_products_array_list,context,m_product_selling_method!!)
-                if(view_products_refresh_layout.isRefreshing){
-                    view_products_refresh_layout.isRefreshing = false
+                auction_products_adapter?.notifyDataSetChanged()
+                auction_products_adapter = ProducerAuctionProductAdapter(auction_products_array_list,context,m_product_selling_method!!)
+                product_placement_recyclerview.adapter = auction_products_adapter
+                if(view_products_refresh_layout?.isRefreshing == true){
+                    view_products_refresh_layout?.isRefreshing = false
                 }
+                skeleton_recyclerview?.visibility = View.GONE
+                shimmer_layout?.stopShimmerAnimation()
             }
         },
                 object : ApiRequest.ErrorCallback{

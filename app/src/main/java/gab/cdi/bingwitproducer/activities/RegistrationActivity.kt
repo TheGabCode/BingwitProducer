@@ -2,6 +2,7 @@ package gab.cdi.bingwitproducer.activities
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -12,36 +13,142 @@ import android.text.TextUtils.substring
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.Toast
+import android.widget.*
 import com.android.volley.VolleyError
 import gab.cdi.bingwit.session.Session
 import gab.cdi.bingwitproducer.R
+import gab.cdi.bingwitproducer.R.id.*
 import gab.cdi.bingwitproducer.fragments.CustomAlertDialogFragment
 import gab.cdi.bingwitproducer.https.API
 import gab.cdi.bingwitproducer.https.ApiRequest
-import gab.cdi.bingwitproducer.models.Area
+import gab.cdi.bingwitproducer.models.*
 import gab.cdi.bingwitproducer.utils.DialogUtil
 import kotlinx.android.synthetic.main.activity_registration.*
+import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.android.UI
+import org.json.JSONArray
 import org.json.JSONObject
+import java.lang.Exception
+import java.util.concurrent.TimeUnit
 
 class RegistrationActivity : AppCompatActivity(), View.OnClickListener, CustomAlertDialogFragment.OnFragmentInteractionListener {
     private lateinit var mSession : Session
     private var registration_areas_dropdown_array : ArrayList<Area> = ArrayList()
+
+    lateinit var provinces_array_list : ArrayList<Province>
+    private var municipality_array_list : ArrayList<Municipality> = ArrayList()
+    private var brgy_array_list : ArrayList<Barangay> = ArrayList()
+
+    private var province_municipality : HashMap<String,MutableList<Municipality>> = HashMap()
+    private var municipality_brgy : HashMap<String,MutableList<String>> = HashMap()
+
+    private var bryg_spinner_adapter : ArrayAdapter<String>? = null
+    private var town_spinner_adapter : ArrayAdapter<Municipality>? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration)
         mSession = Session(this)
+        //loadProvinces()
+        async{
+            addAddressSpinnerListeners()
+        }
         initUI()
+
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
-    fun initUI(){
+    suspend fun addAddressSpinnerListeners() = coroutineScope{
+        provinces_array_list = doLoadProvinces().await()
 
+        val province_spinner_adapter : ArrayAdapter<Province> = ArrayAdapter(this@RegistrationActivity,android.R.layout.simple_spinner_dropdown_item,provinces_array_list)
+        registration_province_spinner.adapter = province_spinner_adapter
+        registration_province_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selected_province = provinces_array_list[position]
+                val selected_province_id = selected_province.province_code
+                town_spinner_adapter = ArrayAdapter<Municipality>(this@RegistrationActivity,R.layout.support_simple_spinner_dropdown_item,province_municipality[selected_province_id]!!)
+                town_spinner_adapter!!.setNotifyOnChange(true)
+                registration_town_spinner.adapter = town_spinner_adapter
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+        }
+        registration_town_spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selected_municipality = registration_town_spinner.selectedItem as Municipality
+                val selected_municipality_id = selected_municipality.municipality_code
+                Log.d("tag",selected_municipality.municipality_name)
+                bryg_spinner_adapter = ArrayAdapter<String>(this@RegistrationActivity,R.layout.support_simple_spinner_dropdown_item,municipality_brgy[selected_municipality_id]!!)
+                bryg_spinner_adapter!!.setNotifyOnChange(true)
+                registration_brgy_spinner.adapter =  bryg_spinner_adapter
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+        loadMunicipalities()
+        loadBaranggays()
+
+    }
+
+    fun initUI(){
         getAreas()
     }
 
+    fun doLoadProvinces() = GlobalScope.async{
+        loadProvinces1()
+    }
+
+    fun loadProvinces1() : ArrayList<Province> {
+        val provinces = application.assets.open("refprovince.json").bufferedReader().use{
+            it.readText()
+        }
+        val arraylist_province : ArrayList<Province> = ArrayList()
+        val json_provinces : JSONArray = JSONObject(provinces).optJSONArray("RECORDS")
+        for(i in 0..json_provinces.length()-1){
+            val province_object = Province(json_provinces[i] as JSONObject)
+            arraylist_province.add(province_object)
+            province_municipality[province_object.province_code] = mutableListOf()
+        }
+        return arraylist_province
+    }
+
+
+    fun loadMunicipalities() {
+            val municipalities = application.assets.open("refcitymun.json").bufferedReader().use{
+                it.readText()
+            }
+            val json_municipality = JSONObject(municipalities).optJSONArray("RECORDS")
+            for(i in 0..json_municipality.length()-1){
+                val municipality_object = Municipality(json_municipality[i] as JSONObject)
+                province_municipality[municipality_object.provincial_code]?.add(municipality_object)
+                municipality_brgy[municipality_object.municipality_code] = mutableListOf()
+                municipality_array_list.add(municipality_object)
+            }
+
+            runOnUiThread {
+                town_spinner_adapter?.notifyDataSetChanged()
+            }
+    }
+
+
+    fun loadBaranggays() {
+        val brgys = application.assets.open("refbrgy.json").bufferedReader().use{
+            it.readText()
+        }
+        val json_brgys = JSONObject(brgys).optJSONArray("RECORDS")
+        for(i in 0..json_brgys.length()-1) {
+            val brgy_object = Barangay(json_brgys[i] as JSONObject)
+            municipality_brgy[brgy_object.municipality_code]?.add(brgy_object.barangay_name)
+        }
+        runOnUiThread {
+            bryg_spinner_adapter?.notifyDataSetChanged()
+        }
+    }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id = item?.itemId
@@ -110,11 +217,17 @@ class RegistrationActivity : AppCompatActivity(), View.OnClickListener, CustomAl
         }
         val params : HashMap<String,String> = HashMap()
         params.put("full_name",registration_fullname_edit_text.text.toString().trim())
-        params.put("address",registration_address_edit_text.text.toString().trim())
         params.put("contact_number",formatted_phone_number)
         params.put("username",registration_username_edit_text.text.toString().trim())
         params.put("password",registration_password_edit_text.text.toString().trim())
         params.put("type","producer")
+        val json_address = JSONObject()
+        json_address.put("province",(registration_province_spinner.selectedItem as Province).province_name)
+        json_address.put("municipality",(registration_town_spinner.selectedItem as Municipality).municipality_name)
+        json_address.put("barangay",(registration_brgy_spinner.selectedItem as String))
+        json_address.put("street",registration_address_edit_text.text.toString())
+        val stringified_json_address = json_address.toString()
+        params.put("address",stringified_json_address)
         val selected_area = registration_area_spinner?.selectedItem as Area
         params.put("area_id",selected_area.id)
         signUp(params)
@@ -136,6 +249,7 @@ class RegistrationActivity : AppCompatActivity(), View.OnClickListener, CustomAl
                             val this_params : HashMap<String,String> = HashMap()
                             this_params.put("username",params.get("username")!!)
                             this_params.put("password",params.get("password")!!)
+                            this_params.put("type",params.get("type")!!)
                             signIn(this_params)
                         }
                     }

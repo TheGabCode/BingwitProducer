@@ -40,7 +40,7 @@
                         android:id="@+id/transaction_product_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/gray_700"
+                        android:textColor="@color/gray_900"
                         android:fontFamily="@font/roboto_bold"
                         android:text="Crispy Pusit"/>
                     <TextView
@@ -68,8 +68,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="0.8"
-                            android:text="Total"
+                            android:layout_weight="0.95"
+                            android:text="Subtotal"
+                            android:paddingEnd="8dp"
+                            android:textAlignment="textEnd"
                             android:fontFamily="@font/roboto"
                             android:textColor="@color/gray_500"
                             android:textSize="12sp"/>
@@ -77,14 +79,17 @@
                             android:id="@+id/transaction_product_total_price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Php 500.00"
-                            android:fontFamily="@font/roboto_bold"
+                            android:text="P500.00"
+                            android:textAlignment="textEnd"
+                            android:fontFamily="@font/roboto"
                             android:textColor="@color/gray_700"
                             />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
+                android:id="@+id/transaction_product_rating_details"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -92,7 +97,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Review:"
+                    android:text="Rating:"
                     android:layout_marginBottom="4dp"/>
                 <RatingBar
                     android:id="@+id/transaction_product_rating"
@@ -108,7 +113,6 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/roboto"
                     android:textColor="@color/gray_500"
-                    android:textSize="16sp"
                     android:text="Worth the price!"/>
             </LinearLayout>
         </LinearLayout>

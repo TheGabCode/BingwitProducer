@@ -48,7 +48,7 @@ class TransactionHistoryFragment : Fragment() {
     var transactions_delivered_arraylist : ArrayList<Transaction> = ArrayList()
     var transactions_returned_arraylist : ArrayList<Transaction> = ArrayList()
 
-
+    lateinit var mPagerAdapter : SectionsPagerAdapter
     private var mListener: OnFragmentInteractionListener? = null
     private lateinit var transaction_tab_layout : TabLayout
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +82,7 @@ class TransactionHistoryFragment : Fragment() {
 
     fun initUI(){
         container.offscreenPageLimit = 4
-        val mPagerAdapter = SectionsPagerAdapter(fragmentManager)
+        mPagerAdapter = SectionsPagerAdapter(childFragmentManager)
         container.adapter = mPagerAdapter
 
 
@@ -123,6 +123,10 @@ class TransactionHistoryFragment : Fragment() {
                 })
     }
 
+    fun getInnerFragment(key : String) : ViewTransactionsFragment{
+        return mPagerAdapter.transaction_fragments_hashmap[key] as ViewTransactionsFragment
+    }
+
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -137,6 +141,7 @@ class TransactionHistoryFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
+        mPagerAdapter.transaction_fragments_hashmap.clear()
         mListener = null
     }
 
@@ -179,29 +184,33 @@ class TransactionHistoryFragment : Fragment() {
     }
 
 
-    inner class SectionsPagerAdapter(fm: FragmentManager?) : FragmentStatePagerAdapter(fm) {
+    inner class SectionsPagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(fm) {
+        val transaction_fragments_hashmap : HashMap<String,Fragment> = HashMap()
         override fun getItem(position: Int): Fragment? {
             var fragment : Fragment? = null
             if(position == 0){
                 fragment = ViewTransactionsFragment.newInstance("on-going")
+                transaction_fragments_hashmap["on-going"] = fragment
                 return fragment
             }
             else if(position == 1){
                 fragment = ViewTransactionsFragment.newInstance("delivered")
+                transaction_fragments_hashmap["delivered"] = fragment
                 return fragment
             }
             else if(position == 2){
                 fragment = ViewTransactionsFragment.newInstance("returned")
+                transaction_fragments_hashmap["returned"] = fragment
                 return fragment
             }
             else if(position == 3){
-                fragment = RatingsFragment()
-
+                fragment = ViewTransactionsFragment.newInstance("cancelled")
+                transaction_fragments_hashmap["cancelled"] = fragment
                 return fragment
             }
 
 
-            return null
+            return ViewTransactionsFragment.newInstance("on-going")
         }
 
         override fun getCount(): Int {

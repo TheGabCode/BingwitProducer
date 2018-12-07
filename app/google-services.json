@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "931633400553",
+    "firebase_url": "https://bingwit-e17af.firebaseio.com",
+    "project_id": "bingwit-e17af",
+    "storage_bucket": "bingwit-e17af.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:931633400553:android:8428babad2eb1a7d",
+        "android_client_info": {
+          "package_name": "gab.cdi.bingwitproducer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "931633400553-g57rjha4mc3u54jedc62el4bkbaqjcdo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "gab.cdi.bingwitproducer",
+            "certificate_hash": "6e00b3aa1741ab4386160329fee8b169eca7b16d"
+          }
+        },
+        {
+          "client_id": "931633400553-j2m5d3doka0gmebd86an3lfk2bis98ct.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1XgNitNUsYj8Idi--Q5qOEc3j_Vc2Rp0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "931633400553-j2m5d3doka0gmebd86an3lfk2bis98ct.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

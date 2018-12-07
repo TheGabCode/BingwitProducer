@@ -5,12 +5,26 @@
     android:background="#eeeeee"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="gab.cdi.bingwitproducer.fragments.ViewTransactionsFragment">
+    <io.supercharge.shimmerlayout.ShimmerLayout
+        android:id="@+id/shimmer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:shimmer_angle="0"
+        app:shimmer_animation_duration="1500"
+        app:shimmer_color="@color/shimmer_color_bingwit"
+        app:shimmer_mask_width="0.2">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/transactions_skeleton_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </io.supercharge.shimmerlayout.ShimmerLayout>
     <android.support.v4.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/transactions_refresh_layout">
         <android.support.v7.widget.RecyclerView
             android:id="@+id/transactions_recycler_view"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
